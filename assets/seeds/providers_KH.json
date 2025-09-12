@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Royal Phnom Penh Hospital",
+    "countryCode": "KH",
+    "regionTag": "Phnom Penh",
+    "billingType": "Direct",
+    "lat": 11.5401,
+    "lng": 104.9174,
+    "contact": { "phone": "+855 23 991 000", "website": "https://www.royalphnompenhhospital.com/" },
+    "tags": ["general"]
+  },
+  {
+    "name": "Sihanoukville International Clinic",
+    "countryCode": "KH",
+    "regionTag": "Sihanoukville",
+    "billingType": "Reimbursement",
+    "lat": 10.6091,
+    "lng": 103.5296,
+    "contact": {},
+    "tags": ["clinic"]
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "th_bkk_bumrungrad",
+    "name": "Bumrungrad International Hospital",
+    "country": "TH",
+    "city": "Bangkok",
+    "regionTag": "Bangkok",
+    "billingType": "direct",
+    "lat": 13.7473,
+    "lng": 100.5530,
+    "phone": "+66 2011 2222",
+    "website": "https://www.bumrungrad.com",
+    "address": "33 Sukhumvit 3, Khlong Toei Nuea, Watthana, Bangkok"
+  },
+  {
+    "id": "ph_mnl_stlukes_bgc",
+    "name": "St. Luke's Medical Center - BGC",
+    "country": "PH",
+    "city": "Taguig",
+    "regionTag": "Metro Manila",
+    "billingType": "reimbursement",
+    "lat": 14.5536,
+    "lng": 121.0497,
+    "phone": "+63 2 8789 7700",
+    "website": "https://www.stlukes.com.ph",
+    "address": "Rizal Drive cor. 32nd St and 5th Ave, Taguig"
+  },
+  {
+    "id": "vn_hcmc_vinmec",
+    "name": "Vinmec Central Park International Hospital",
+    "country": "VN",
+    "city": "Ho Chi Minh City",
+    "regionTag": "HCMC",
+    "billingType": "direct",
+    "lat": 10.8010,
+    "lng": 106.7150,
+    "phone": "+84 28 3622 1166",
+    "website": "https://www.vinmec.com",
+    "address": "208 Nguyen Huu Canh, Ward 22, Binh Thanh District"
+  },
+  {
+    "id": "kh_pnh_royal_phnom_penh",
+    "name": "Royal Phnom Penh Hospital",
+    "country": "KH",
+    "city": "Phnom Penh",
+    "regionTag": "Phnom Penh",
+    "billingType": "reimbursement",
+    "lat": 11.5683,
+    "lng": 104.9229,
+    "phone": "+855 23 991 000",
+    "website": "https://www.royalphnompenhhospital.com",
+    "address": "No. 888 Russian Federation Blvd (110), Phnom Penh"
+  }
+]

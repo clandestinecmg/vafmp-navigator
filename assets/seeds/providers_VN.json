@@ -1,0 +1,22 @@
+[
+  {
+    "name": "FV Hospital",
+    "countryCode": "VN",
+    "regionTag": "Ho Chi Minh City",
+    "billingType": "Direct",
+    "lat": 10.7293,
+    "lng": 106.7215,
+    "contact": { "phone": "+84 28 5411 3333", "website": "https://www.fvhospital.com/" },
+    "tags": ["general", "international"]
+  },
+  {
+    "name": "Vinmec Times City International Hospital",
+    "countryCode": "VN",
+    "regionTag": "Hanoi",
+    "billingType": "Reimbursement",
+    "lat": 20.9967,
+    "lng": 105.8676,
+    "contact": { "website": "https://vinmec.com/" },
+    "tags": ["general", "international"]
+  }
+]

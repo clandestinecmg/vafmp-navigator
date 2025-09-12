@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Bangkok Hospital",
+    "countryCode": "TH",
+    "regionTag": "Bangkok",
+    "billingType": "Direct",
+    "lat": 13.7447,
+    "lng": 100.5681,
+    "contact": { "phone": "+66 2310 3000", "website": "https://www.bangkokhospital.com/" },
+    "tags": ["general", "emergency"]
+  },
+  {
+    "name": "Chiang Mai Ram Hospital",
+    "countryCode": "TH",
+    "regionTag": "Chiang Mai",
+    "billingType": "Reimbursement",
+    "lat": 18.7877,
+    "lng": 98.9931,
+    "contact": { "phone": "+66 5392 0050" },
+    "tags": ["general"]
+  }
+]

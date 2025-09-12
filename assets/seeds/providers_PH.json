@@ -1,0 +1,22 @@
+[
+  {
+    "name": "St. Luke’s Medical Center BGC",
+    "countryCode": "PH",
+    "regionTag": "Metro Manila",
+    "billingType": "Direct",
+    "lat": 14.5535,
+    "lng": 121.0473,
+    "contact": { "phone": "+63 2 8789 7700", "website": "https://www.stlukes.com.ph/" },
+    "tags": ["general", "specialty"]
+  },
+  {
+    "name": "Cebu Doctors University Hospital",
+    "countryCode": "PH",
+    "regionTag": "Cebu",
+    "billingType": "Reimbursement",
+    "lat": 10.3103,
+    "lng": 123.8973,
+    "contact": { "phone": "+63 32 255 5555" },
+    "tags": ["general"]
+  }
+]
