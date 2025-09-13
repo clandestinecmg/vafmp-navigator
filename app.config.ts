@@ -20,14 +20,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
 
   ios: {
+    buildNumber: '1',
+
     supportsTablet: true,
     bundleIdentifier: 'com.yourdomain.vafmpnavigator',
+  
   },
   android: {
+    versionCode: 1,
+
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#0b1220',
-    },
+    
+  },
     package: 'com.yourdomain.vafmpnavigator',
   },
 
