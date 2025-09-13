@@ -1,17 +1,39 @@
+// app/(dev)/debugAuth.tsx
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { shared } from '../../styles/shared';
+
+// ✅ Import from our wrapper instead of 'firebase/auth'
+import {
+  auth,
+  onAuthStateChanged,
+  signInAnonymously,
+  signOut,
+  type User,
+} from '../../lib/authApi';
 
 export default function DebugAuth() {
+  const [user, setUser] = React.useState<User | null>(auth.currentUser);
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🔧 Debug Auth Screen</Text>
-      <Text style={styles.subtitle}>Placeholder screen for testing routes.</Text>
+    <View style={shared.screen}>
+      <View style={shared.safePad} />
+      <Text style={shared.title}>🔧 Debug Auth</Text>
+      <Text style={shared.text}>UID: {user?.uid ?? '—'}</Text>
+
+      <View style={{ flexDirection: 'row', gap: 12, padding: 16 }}>
+        <Pressable onPress={() => signInAnonymously(auth)} style={shared.pill}>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Anon sign-in</Text>
+        </Pressable>
+        <Pressable onPress={() => signOut(auth)} style={shared.pill}>
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Sign out</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
-  title: { fontSize: 22, fontWeight: '700', marginBottom: 12 },
-  subtitle: { fontSize: 16, color: '#555', textAlign: 'center' },
-});

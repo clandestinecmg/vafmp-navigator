@@ -1,0 +1,46 @@
+== SYSTEM ==
+v22.19.0
+11.6.0
+0.24.21
+eas-cli/16.19.1 darwin-arm64 node-v22.19.0
+
+== KEY DEPS ==
+expo ~53.0.22
+react 19.0.0
+react-native 0.79.5
+expo-router ~5.1.6
+@expo/vector-icons ^14.1.0
+@react-native-async-storage/async-storage 2.1.2
+react-native-screens ~4.11.1
+react-native-safe-area-context 5.4.0
+
+== npm tree (top) ==
+vafmp-navigator@1.0.0 /Users/cmg/vafmp-navigator
+├── @babel/core@7.28.4
+├── @expo/vector-icons@14.1.0
+├── @react-native-async-storage/async-storage@2.1.2
+├── @react-native-picker/picker@2.11.1
+├── @tanstack/react-query@5.87.4
+├── @types/react@19.1.13
+├── dotenv@16.6.1
+├── expo-application@6.1.5
+├── expo-asset@11.1.7
+├── expo-constants@17.1.7
+├── expo-dev-client@5.2.4
+├── expo-device@7.1.4
+├── expo-font@13.3.2
+├── expo-linking@7.1.7
+├── expo-mail-composer@14.1.6
+├── expo-router@5.1.6
+├── expo-secure-store@14.2.4
+├── expo-status-bar@2.2.3
+├── expo@53.0.22
+├── firebase@11.10.0
+├── react-native-safe-area-context@5.4.0
+├── react-native-screens@4.11.1
+├── react-native@0.79.5
+├── react@19.0.0
+├── tslib@2.8.1
+├── typescript@5.8.3
+└── zustand@5.0.8
+

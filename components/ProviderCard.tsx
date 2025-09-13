@@ -1,7 +1,9 @@
 // components/ProviderCard.tsx
 import * as React from 'react';
-import { View, Text, StyleSheet, Pressable, Share, Linking } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Share, Linking, Alert } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { buildGoogleMapsUrl, openInMaps } from '../lib/utils.maps';
+import { colors } from '../styles/shared';
 
 export type ProviderCardItem = {
   id: string;
@@ -23,9 +25,10 @@ type Props = {
 };
 
 export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Props) {
-  // Tolerant badge (handles 'direct', 'Direct', missing, etc.)
-  const billingRaw = (item.billing ?? '').toString();
-  const badge = billingRaw.toLowerCase() === 'direct' ? 'Direct' : 'Reimbursement';
+  const billing =
+    (item.billing ?? '').toString().trim().toLowerCase() === 'direct'
+      ? 'Direct'
+      : 'Reimbursement';
 
   const onPressMaps = () => {
     const url = buildGoogleMapsUrl({
@@ -36,13 +39,20 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
       lat: item.lat,
       lng: item.lng,
     });
+    if (!url) {
+      Alert.alert('No Location', 'This provider has no map location yet.');
+      return;
+    }
     openInMaps(url);
   };
 
   const onPressCall = () => {
-    if (!item.phone) return;
-    const tel = `tel:${item.phone.replace(/\s+/g, '')}`;
-    Linking.openURL(tel).catch(() => {});
+    if (!item.phone) {
+      Alert.alert('No Phone', 'This provider does not have a phone number yet.');
+      return;
+    }
+    const tel = item.phone.replace(/[^\d+]/g, '');
+    Linking.openURL(`tel:${tel}`).catch(() => {});
   };
 
   const onPressShare = async () => {
@@ -57,18 +67,28 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
     await Share.share({
       title: item.name,
       message: `${item.name}${url ? ` — ${url}` : ''}`,
-    });
+    }).catch(() => {});
   };
 
   return (
     <View style={styles.card}>
       <View style={styles.rowBetween}>
         <Text style={styles.name}>{item.name}</Text>
-        <View style={[styles.badge, badge === 'Direct' ? styles.badgeDirect : styles.badgeReimb]}>
-          <Text style={[styles.badgeText, badge === 'Direct' ? styles.badgeTextDark : styles.badgeTextLight]}>
-            {badge}
-          </Text>
-        </View>
+
+        {/* ⭐ Top-right star toggle */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          onPress={() => onToggleFavorite?.(item.id, !isFavorite)}
+          hitSlop={10}
+          style={{ paddingLeft: 8 }}
+        >
+          <MaterialIcons
+            name={isFavorite ? 'star' : 'star-border'}
+            size={24}
+            color={isFavorite ? colors.gold : colors.muted}
+          />
+        </Pressable>
       </View>
 
       <Text style={styles.sub}>
@@ -76,22 +96,42 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
       </Text>
 
       <View style={styles.actions}>
-        <Pill onPress={onPressMaps} label="Open in Maps" />
-        {item.phone ? <Pill onPress={onPressCall} label="Call" /> : null}
-        <Pill onPress={onPressShare} label="Share" />
-        <Pill
-          onPress={() => onToggleFavorite?.(item.id, !isFavorite)}
-          label={isFavorite ? '★ Saved' : '☆ Save'}
-        />
+        <IconPill icon="map"    tint={colors.blue}  label="Open in Maps" onPress={onPressMaps} />
+        {item.phone ? <IconPill icon="call"   tint={colors.green} label="Call" onPress={onPressCall} /> : null}
+        <IconPill icon="share"  tint={colors.gold} label="Share" onPress={onPressShare} />
+      </View>
+
+      <View style={styles.badgeRow}>
+        <View style={[styles.badge, billing === 'Direct' ? styles.badgeDirect : styles.badgeReimb]}>
+          <Text style={styles.badgeText}>{billing}</Text>
+        </View>
       </View>
     </View>
   );
 }
 
-function Pill({ label, onPress }: { label: string; onPress: () => void }) {
+function IconPill({
+  icon,
+  label,
+  onPress,
+  tint,
+}: {
+  icon: React.ComponentProps<typeof MaterialIcons>['name'];
+  label: string;
+  onPress: () => void;
+  tint: string;
+}) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]}>
-      <Text style={styles.pillText}>{label}</Text>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]}
+    >
+      <View style={styles.pillRow}>
+        <MaterialIcons name={icon} size={18} color={tint} />
+        <Text style={[styles.pillText, { color: tint }]}>{label}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -100,33 +140,30 @@ const styles = StyleSheet.create({
   card: {
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#fff',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  name: { fontSize: 16, fontWeight: '700', flexShrink: 1, paddingRight: 8 },
-  sub: { marginTop: 4, color: '#666' },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  badgeDirect: { backgroundColor: '#d1fae5' },        // green-100
-  badgeReimb: { backgroundColor: '#e0e7ff' },         // indigo-100
-  badgeText: { fontSize: 12, fontWeight: '700' },
-  badgeTextDark: { color: '#065f46' },                // green-800
-  badgeTextLight: { color: '#3730a3' },               // indigo-800
+  name: { fontSize: 16, fontWeight: '700', flexShrink: 1, paddingRight: 8, color: colors.text },
+  sub: { marginTop: 4, color: colors.muted },
+
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   pill: {
-    backgroundColor: '#f3f4f6',                       // gray-100
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
   },
-  pillPressed: { opacity: 0.8 },
-  pillText: { fontWeight: '700', color: '#111827' },  // gray-900
+  pillPressed: { opacity: 0.9 },
+  pillRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pillText: { fontWeight: '800' },
+
+  badgeRow: { marginTop: 10, flexDirection: 'row' },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
+  badgeDirect: { backgroundColor: '#065f46' },
+  badgeReimb: { backgroundColor: '#7f1d1d' },
+  badgeText: { color: '#fff', fontWeight: '700', fontSize: 12, letterSpacing: 0.3 },
 });

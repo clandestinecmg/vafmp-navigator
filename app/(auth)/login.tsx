@@ -1,62 +1,57 @@
+// app/(auth)/login.tsx
 import * as React from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useRouter } from 'expo-router';
-import { signInAnonymously, onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
-import { colors, shared } from '../../styles/shared';
+import Background from '../../components/Background';
+import { shared, colors } from '../../styles/shared';
+
+// ✅ Import ONLY from our wrapper to avoid the firebase/auth type drama
+import {
+  auth,
+  onAuthStateChanged,
+  signInAnonymously,
+  type User,
+} from '../../lib/authApi';
 
 export default function Login() {
-  const router = useRouter();
-  const [user, setUser] = React.useState<User | null>(auth.currentUser ?? null);
-  const [busy, setBusy] = React.useState(false);
+  const [user, setUser] = React.useState<User | null>(auth.currentUser);
 
   React.useEffect(() => {
-    const sub = onAuthStateChanged(auth, (u) => setUser(u));
-    return () => sub();
+    const unsub = onAuthStateChanged(auth, setUser);
+    return () => unsub();
   }, []);
 
-  const onAnon = async () => {
-    try {
-      setBusy(true);
-      await signInAnonymously(auth);
-      // Route to Home after successful sign-in
-      router.replace('/(app)/home');
-    } catch (e: any) {
-      Alert.alert('Sign-in failed', String(e?.message || e));
-    } finally {
-      setBusy(false);
-    }
+  const onAnon = () => {
+    signInAnonymously(auth).catch(() => {
+      // no-op: you can surface a toast/alert if you want
+    });
   };
 
   return (
-    <View style={shared.screen}>
+    <Background>
       <View style={shared.safePad} />
+      <View style={styles.container}>
+        <Text style={shared.title}>Auth</Text>
+        <Text style={shared.text}>
+          {user ? `UID: ${user.uid}` : 'Not signed in'}
+        </Text>
 
-      <Text style={shared.title}>Sign in</Text>
-
-      <View style={shared.card}>
-        <View style={shared.cardHeader}>
-          <Text style={shared.text}>
-            {user ? 'Logged in (anonymous)' : 'Not signed in'}
-          </Text>
-        </View>
-        {!!user && (
-          <Text style={shared.textMuted} selectable>
-            UID: {user.uid}
-          </Text>
-        )}
-
-        <View style={shared.actionRow}>
-          <TouchableOpacity
-            style={shared.actionBtn}
-            onPress={onAnon}
-            disabled={busy}
-          >
-            <MaterialIcons name="login" size={22} color={colors.amber} />
-          </TouchableOpacity>
+        <View style={styles.row}>
+          <Pressable onPress={onAnon} style={shared.pill} accessibilityRole="button">
+            <View style={styles.btnRow}>
+              <MaterialIcons name="login" size={16} color={colors.text} />
+              <Text style={styles.btnText}>Anon sign-in</Text>
+            </View>
+          </Pressable>
         </View>
       </View>
-    </View>
+    </Background>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { paddingHorizontal: 16, paddingTop: 8, flex: 1 },
+  row: { flexDirection: 'row', gap: 12, padding: 16 },
+  btnRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  btnText: { color: colors.text, fontWeight: '700' },
+});

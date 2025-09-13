@@ -1,57 +1,86 @@
 // lib/firestore.ts
-import { db } from './firebase';
 import {
   collection,
   getDocs,
   doc,
   setDoc,
+  deleteDoc,
+  serverTimestamp,
+  updateDoc,
   getDoc,
+  type DocumentData,
 } from 'firebase/firestore';
+import { db } from './firebase';
 
 export type Provider = {
   id: string;
   name: string;
-  country?: string;
   city?: string;
-  billing?: 'Direct' | 'Reimbursement';
+  country?: string;
+  billing?: 'Direct' | 'Reimbursement' | string | null;
   phone?: string;
   email?: string;
-  mapsUrl?: string;
+  mapsUrl?: string;        // normalized for UI
+  placeId?: string;
+  lat?: number;
+  lng?: number;
+  [key: string]: any;      // keep any extra fields (notes, regionTag, etc.)
 };
 
+/** Shape we read from Firestore before normalizing */
+type ProviderDoc = Omit<Provider, 'id' | 'mapsUrl'> &
+  Partial<Pick<Provider, 'id'>> & {
+    googleMapsUrl?: string; // many of your docs use this
+  };
+
+/** Normalize Firestore doc data -> Provider */
+function toProvider(docId: string, raw: ProviderDoc): Provider {
+  // prefer embedded id, then fallback to doc id
+  const id = raw.id ?? docId;
+
+  // normalize mapsUrl field
+  const mapsUrl = raw.googleMapsUrl ?? (raw as any).mapsUrl;
+
+  // Build final Provider (assert name exists; your seed shows it does)
+  return {
+    ...raw,
+    id,
+    mapsUrl,
+  } as Provider;
+}
+
+/** Read-only list used by the app */
 export async function getAllProviders(): Promise<Provider[]> {
-  const snapshot = await getDocs(collection(db, 'providers'));
-  return snapshot.docs.map((d) => {
-    const data = d.data() as Partial<Omit<Provider, 'id'>>;
-    return {
-      id: d.id,
-      name: data.name ?? '(Unnamed)',
-      country: data.country ?? undefined,
-      city: data.city ?? undefined,
-      billing: (data.billing as Provider['billing']) ?? undefined,
-      phone: data.phone ?? undefined,
-      email: data.email ?? undefined,
-      mapsUrl: data.mapsUrl ?? undefined,
-    } as Provider;
-  });
+  const snap = await getDocs(collection(db, 'providers'));
+  return snap.docs.map((d) => toProvider(d.id, d.data() as ProviderDoc));
 }
 
+/** Favorites live under /users/{uid}/favorites/{providerId} */
 export async function getFavoriteIds(uid: string): Promise<string[]> {
-  const docRef = doc(db, 'favorites', uid);
-  const snap = await getDoc(docRef);
-  return snap.exists() ? (snap.data().ids as string[]) : [];
+  const snap = await getDocs(collection(db, 'users', uid, 'favorites'));
+  return snap.docs.map((d) => d.id);
 }
 
-export async function toggleFavorite(uid: string, providerId: string, on: boolean) {
-  const favRef = doc(db, 'favorites', uid);
-  const snap = await getDoc(favRef);
-  let ids: string[] = snap.exists() ? (snap.data().ids as string[]) : [];
-
-  if (on) {
-    if (!ids.includes(providerId)) ids.push(providerId);
+export async function toggleFavorite(uid: string, providerId: string, next: boolean) {
+  const favRef = doc(db, 'users', uid, 'favorites', providerId);
+  if (next) {
+    await setDoc(favRef, { createdAt: serverTimestamp() }, { merge: true });
   } else {
-    ids = ids.filter((id) => id !== providerId);
+    await deleteDoc(favRef);
   }
+}
 
-  await setDoc(favRef, { ids });
+/** Update a provider by doc id (ignore `id` in the patch) */
+export async function updateProvider(id: string, patch: Partial<Provider>) {
+  const ref = doc(db, 'providers', id);
+  const { id: _omit, ...rest } = patch;
+  // Firestore’s UpdateData typing is strict; cast is fine for our partials
+  await updateDoc(ref, rest as DocumentData);
+}
+
+export async function getProvider(id: string): Promise<Provider | null> {
+  const ref = doc(db, 'providers', id);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  return toProvider(snap.id, snap.data() as ProviderDoc);
 }
