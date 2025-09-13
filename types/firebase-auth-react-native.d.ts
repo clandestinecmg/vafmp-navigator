@@ -1,6 +1,6 @@
 // types/firebase-auth-react-native.d.ts
-declare module 'firebase/auth/react-native' {
-  import type { Auth, Dependencies, FirebaseApp } from 'firebase/auth';
+// Minimal, TS-only augmentation so we can import from "firebase/auth"
+declare module 'firebase/auth' {
   export function getReactNativePersistence(storage: any): any;
-  export function initializeAuth(app: FirebaseApp, deps?: Dependencies): Auth;
+  export function initializeAuth(app: any, deps?: any): any;
 }

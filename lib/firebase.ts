@@ -1,10 +1,6 @@
 // lib/firebase.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import {
-  initializeFirestore,
-  persistentLocalCache, // ✅ correct symbol
-} from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache } from 'firebase/firestore';
 import Constants from 'expo-constants';
 
 const extra = Constants.expoConfig?.extra ?? {};
@@ -17,15 +13,10 @@ const firebaseConfig = {
   appId: extra.FB_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
-// Auth (memory persistence in Expo Go; we'll switch to AsyncStorage in dev build)
-export const auth = getAuth(app);
-
-// Firestore: RN-friendly transport + resilient local cache
+// Firestore with resilient cache; on RN it may warn about IndexedDB and fall back — that’s fine.
 export const db = initializeFirestore(app, {
-  // prefer long polling when WebChannel is flaky (Expo Go / some networks)
   experimentalAutoDetectLongPolling: true,
-  // ‘useFetchStreams’ is not in your SDK’s FirestoreSettings; remove it
-  localCache: persistentLocalCache(), // ✅ supported in your typings
+  localCache: persistentLocalCache(),
 });

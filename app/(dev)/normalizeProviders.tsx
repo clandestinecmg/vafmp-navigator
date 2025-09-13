@@ -1,107 +1,106 @@
 // app/(dev)/normalizeProviders.tsx
 import * as React from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, ActivityIndicator } from 'react-native';
-import { db } from '../../lib/firebase';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { colors, shared } from '../../styles/shared';
 import {
+  adminDb,
   collection,
   getDocs,
-  writeBatch,
   doc,
-} from 'firebase/firestore';
+  writeBatch,
+  deleteField,
+  updateDoc,
+} from '../../lib/firestore_admin';
 
-export default function NormalizeProviders() {
-  const [busy, setBusy] = React.useState(false);
-  const [lastRun, setLastRun] = React.useState<string | null>(null);
+// Normalizes billing (Direct/Reimbursement), drops legacy fields
+export default function DevNormalizeProviders() {
+  const [log, setLog] = React.useState<string[]>([]);
+  const append = (s: string) => setLog((xs) => [...xs, s]);
 
   const run = async () => {
     try {
-      setBusy(true);
-      const snap = await getDocs(collection(db, 'providers'));
+      setLog([]);
+      const snap = await getDocs(collection(adminDb, 'providers'));
+      append(`Scanning ${snap.size} providers…`);
 
-      const batch = writeBatch(db);
-      let changes = 0;
+      const batch = writeBatch(adminDb);
+      let touched = 0;
 
       snap.forEach((d) => {
         const data = d.data() as any;
+        let nextBilling: 'Direct' | 'Reimbursement' | null = null;
 
-        // prefer `billing`, fall back to legacy `billingType`
-        const raw = (data.billing ?? data.billingType ?? '').toString().toLowerCase();
-        const normalized = raw === 'direct' ? 'Direct' : 'Reimbursement';
-
-        let needsUpdate = false;
-        const update: Record<string, any> = {};
-
-        if (data.billing !== normalized) {
-          update.billing = normalized;
-          needsUpdate = true;
+        if (typeof data.billing === 'string') {
+          const b = data.billing.toLowerCase();
+          if (b === 'direct') nextBilling = 'Direct';
+          else if (b === 'reimbursement') nextBilling = 'Reimbursement';
         }
 
-        // Optional cleanup: if a legacy field exists, remove it
-        if (typeof data.billingType !== 'undefined') {
-          update.billingType = null; // sentinel for deletion with merge: true not supported in batch
-          needsUpdate = true;
+        const payload: any = {};
+        if (nextBilling && data.billing !== nextBilling) {
+          payload.billing = nextBilling;
+        }
+        if ('billingType' in data) {
+          payload.billingType = deleteField();
         }
 
-        if (needsUpdate) {
-          // Note: Firestore batch doesn't support field deletion with `null` directly.
-          // We'll write `billing` now, then do a second pass to remove `billingType` via update with deleteField.
-          batch.set(doc(db, 'providers', d.id), { billing: normalized }, { merge: true });
-          changes++;
+        if (Object.keys(payload).length > 0) {
+          batch.update(doc(adminDb, 'providers', d.id), payload);
+          touched++;
         }
       });
 
-      if (changes > 0) {
+      if (touched > 0) {
         await batch.commit();
       }
-
-      // Second pass: actually remove the legacy `billingType` field if present.
-      // (Only if you want it gone; otherwise comment this section out.)
-      const snap2 = await getDocs(collection(db, 'providers'));
-      const { deleteField, updateDoc } = await import('firebase/firestore');
-      let deletions = 0;
-      for (const d of snap2.docs) {
-        const data = d.data() as any;
-        if (typeof data.billingType !== 'undefined') {
-          await updateDoc(doc(db, 'providers', d.id), { billingType: deleteField() });
-          deletions++;
-        }
-      }
-
-      const msg = `Normalized ${changes} docs, removed legacy field from ${deletions} docs.`;
-      setLastRun(new Date().toLocaleString());
-      Alert.alert('Done', msg);
-      console.log('[NormalizeProviders]', msg);
+      append(`✅ Normalized ${touched} document(s).`);
+      Alert.alert('Normalize Providers', `Updated ${touched} document(s).`);
     } catch (e: any) {
-      Alert.alert('Error', String(e?.message || e));
-    } finally {
-      setBusy(false);
+      console.error(e);
+      Alert.alert('Normalize Error', String(e?.message || e));
     }
   };
 
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.title}>Normalize Provider Billing</Text>
-      <Text style={styles.desc}>
-        This will set each provider’s <Text style={styles.mono}>billing</Text> field to {'"Direct"'} or {'"Reimbursement"'}
-        based on existing values (case-insensitive) and remove legacy <Text style={styles.mono}>billingType</Text>.
-      </Text>
+    <ScrollView style={shared.screen} contentContainerStyle={{ paddingBottom: 24 }}>
+      <View style={shared.safePad} />
+      <Text style={shared.title}>Dev: Normalize Providers</Text>
 
-      <Pressable style={[styles.btn, busy && styles.btnDisabled]} onPress={run} disabled={busy}>
-        {busy ? <ActivityIndicator /> : <Text style={styles.btnText}>Run Normalizer</Text>}
-      </Pressable>
+      <View style={shared.card}>
+        <Text style={shared.text}>
+          Enforces <Text style={{ fontWeight: '800' }}>billing</Text> to “Direct” or “Reimbursement”, removes legacy <Text style={{ fontWeight: '800' }}>billingType</Text>.
+        </Text>
+        <View style={{ height: 12 }} />
+        <TouchableOpacity style={styles.btn} onPress={run}>
+          <MaterialIcons name="auto-fix-high" size={18} color={colors.text} />
+          <Text style={styles.btnText}>Normalize</Text>
+        </TouchableOpacity>
+      </View>
 
-      {lastRun ? <Text style={styles.meta}>Last run: {lastRun}</Text> : null}
-    </View>
+      {log.length > 0 && (
+        <View style={shared.card}>
+          <Text style={[shared.text, { marginBottom: 6 }]}>Log</Text>
+          {log.map((l, i) => (
+            <Text key={i} style={shared.textMuted}>• {l}</Text>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, padding: 16, gap: 12, justifyContent: 'center' },
-  title: { fontSize: 20, fontWeight: '800' },
-  desc: { color: '#555' },
-  mono: { fontFamily: 'Courier', color: '#111' },
-  btn: { marginTop: 12, backgroundColor: '#2563eb', borderRadius: 10, paddingVertical: 12, alignItems: 'center' },
-  btnDisabled: { opacity: 0.7 },
-  btnText: { color: '#fff', fontWeight: '800' },
-  meta: { marginTop: 8, color: '#666' },
+  btn: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.card,
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+  },
+  btnText: { color: colors.text, fontWeight: '700' },
 });
