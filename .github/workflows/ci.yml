@@ -2,33 +2,18 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
-    branches: ['**']
-
-# Avoid overlapping runs per branch
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
+    branches: [main]
 
 jobs:
   quality:
-    name: Lint & Typecheck
     runs-on: ubuntu-latest
-
-    # Don’t bother running when only these paths change
-    # (keeps CI snappy)
-    if: >
-      !contains(github.event.head_commit.message, '[skip ci]')
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node 20.x with npm cache
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -36,6 +21,9 @@ jobs:
 
       - name: Install deps (clean)
         run: npm ci
+
+      - name: Verify Husky hooks
+        run: npm run check:hooks
 
       - name: Prettier (check)
         run: npm run format:check
@@ -45,7 +33,3 @@ jobs:
 
       - name: TypeScript (no emit)
         run: npx tsc --noEmit
-
-    # Ignore churny dirs to reduce queued work on monorepos / big trees
-    # (Actions doesn't have native path-ignore per job; we rely on not
-    # committing these or using [skip ci] when appropriate.)
