@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 permissions:
   contents: read
 jobs:
@@ -31,3 +31,21 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm audit --audit-level=high || true
+
+  verify-signed-commits:
+    name: Verify Signed Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for unsigned commits
+        run: |
+          echo "🔍 Checking commit signatures..."
+          if git log origin/main..HEAD --pretty='%H %G?' | grep -vE ' G$'; then
+            echo "❌ Found unsigned commits. Please sign them with SSH/GPG."
+            exit 1
+          fi
+          echo "✅ All commits are properly signed."
