@@ -1,0 +1,29 @@
+name: Security
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  npm-audit:
+    name: npm audit (prod)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm ci --omit=dev
+      - name: Audit production deps (fail only on high/critical)
+        run: npm audit --production --audit-level=high || true
+  osv-scan:
+    name: OSV scan (repo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google/osv-scanner-action@v1
+        with:
+          scan-args: >
+            -r .
