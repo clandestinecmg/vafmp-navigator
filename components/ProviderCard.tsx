@@ -1,6 +1,14 @@
 // components/ProviderCard.tsx
 import * as React from 'react';
-import { View, Text, StyleSheet, Pressable, Share, Linking, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Share,
+  Linking,
+  Alert,
+} from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { buildGoogleMapsUrl, openInMaps } from '../lib/utils.maps';
 import { colors } from '../styles/shared';
@@ -24,7 +32,11 @@ type Props = {
   onToggleFavorite?: (id: string, next: boolean) => void;
 };
 
-export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Props) {
+export default function ProviderCard({
+  item,
+  isFavorite,
+  onToggleFavorite,
+}: Props) {
   const billing =
     (item.billing ?? '').toString().trim().toLowerCase() === 'direct'
       ? 'Direct'
@@ -48,7 +60,10 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
 
   const onPressCall = () => {
     if (!item.phone) {
-      Alert.alert('No Phone', 'This provider does not have a phone number yet.');
+      Alert.alert(
+        'No Phone',
+        'This provider does not have a phone number yet.',
+      );
       return;
     }
     const tel = item.phone.replace(/[^\d+]/g, '');
@@ -78,7 +93,9 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
         {/* ⭐ Top-right star toggle */}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          accessibilityLabel={
+            isFavorite ? 'Remove from favorites' : 'Add to favorites'
+          }
           onPress={() => onToggleFavorite?.(item.id, !isFavorite)}
           hitSlop={10}
           style={{ paddingLeft: 8 }}
@@ -92,17 +109,40 @@ export default function ProviderCard({ item, isFavorite, onToggleFavorite }: Pro
       </View>
 
       <Text style={styles.sub}>
-        {item.city ? `${item.city}, ` : ''}{item.country ?? ''}
+        {item.city ? `${item.city}, ` : ''}
+        {item.country ?? ''}
       </Text>
 
       <View style={styles.actions}>
-        <IconPill icon="map"    tint={colors.blue}  label="Open in Maps" onPress={onPressMaps} />
-        {item.phone ? <IconPill icon="call"   tint={colors.green} label="Call" onPress={onPressCall} /> : null}
-        <IconPill icon="share"  tint={colors.gold} label="Share" onPress={onPressShare} />
+        <IconPill
+          icon="map"
+          tint={colors.blue}
+          label="Open in Maps"
+          onPress={onPressMaps}
+        />
+        {item.phone ? (
+          <IconPill
+            icon="call"
+            tint={colors.green}
+            label="Call"
+            onPress={onPressCall}
+          />
+        ) : null}
+        <IconPill
+          icon="share"
+          tint={colors.gold}
+          label="Share"
+          onPress={onPressShare}
+        />
       </View>
 
       <View style={styles.badgeRow}>
-        <View style={[styles.badge, billing === 'Direct' ? styles.badgeDirect : styles.badgeReimb]}>
+        <View
+          style={[
+            styles.badge,
+            billing === 'Direct' ? styles.badgeDirect : styles.badgeReimb,
+          ]}
+        >
           <Text style={styles.badgeText}>{billing}</Text>
         </View>
       </View>
@@ -144,8 +184,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  name: { fontSize: 16, fontWeight: '700', flexShrink: 1, paddingRight: 8, color: colors.text },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '700',
+    flexShrink: 1,
+    paddingRight: 8,
+    color: colors.text,
+  },
   sub: { marginTop: 4, color: colors.muted },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
@@ -165,5 +215,10 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   badgeDirect: { backgroundColor: '#065f46' },
   badgeReimb: { backgroundColor: '#7f1d1d' },
-  badgeText: { color: '#fff', fontWeight: '700', fontSize: 12, letterSpacing: 0.3 },
+  badgeText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
+    letterSpacing: 0.3,
+  },
 });

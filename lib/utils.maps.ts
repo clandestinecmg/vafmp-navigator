@@ -3,12 +3,14 @@ import { Linking } from 'react-native';
 
 export type LatLng = { lat?: number; lng?: number };
 
-export function buildGoogleMapsUrl(params: {
-  name?: string;
-  city?: string;
-  placeId?: string;
-  mapsUrl?: string;
-} & LatLng) {
+export function buildGoogleMapsUrl(
+  params: {
+    name?: string;
+    city?: string;
+    placeId?: string;
+    mapsUrl?: string;
+  } & LatLng,
+) {
   const { mapsUrl, placeId, name, city, lat, lng } = params;
 
   if (mapsUrl) return mapsUrl;

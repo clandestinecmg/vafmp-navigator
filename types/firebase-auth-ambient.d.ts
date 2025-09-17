@@ -12,10 +12,13 @@ declare module 'firebase/auth' {
 
   // Core APIs used in your code
   export function getAuth(app?: any): any;
-  export function onAuthStateChanged(auth: any, nextOrObserver: any): Unsubscribe;
+  export function onAuthStateChanged(
+    auth: any,
+    nextOrObserver: any,
+  ): Unsubscribe;
   export function signInAnonymously(auth: any): Promise<any>;
   export function signOut(auth: any): Promise<void>;
   // add to your existing `declare module 'firebase/auth' { ... }` block:
-export function initializeAuth(app: any, opts: any): any
-export function getReactNativePersistence(storage: any): any
+  export function initializeAuth(app: any, opts: any): any;
+  export function getReactNativePersistence(storage: any): any;
 }

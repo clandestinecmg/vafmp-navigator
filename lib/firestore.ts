@@ -12,7 +12,8 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-export type Provider = {
+/** Core provider fields used by the app UI */
+export type ProviderBase = {
   id: string;
   name: string;
   city?: string;
@@ -20,30 +21,36 @@ export type Provider = {
   billing?: 'Direct' | 'Reimbursement' | string | null;
   phone?: string;
   email?: string;
-  mapsUrl?: string;        // normalized for UI
+  mapsUrl?: string; // normalized for UI
   placeId?: string;
   lat?: number;
   lng?: number;
-  [key: string]: any;      // keep any extra fields (notes, regionTag, etc.)
 };
 
+/** Allow unknown/aux fields (notes, regionTag, etc.) without using `any` */
+export type Provider = ProviderBase & Record<string, unknown>;
+
 /** Shape we read from Firestore before normalizing */
-type ProviderDoc = Omit<Provider, 'id' | 'mapsUrl'> &
-  Partial<Pick<Provider, 'id'>> & {
-    googleMapsUrl?: string; // many of your docs use this
-  };
+type ProviderDoc = Omit<ProviderBase, 'id' | 'mapsUrl'> &
+  Partial<Pick<ProviderBase, 'id' | 'mapsUrl'>> & {
+    /** legacy key some docs use */
+    googleMapsUrl?: string;
+  } & Record<string, unknown>;
 
 /** Normalize Firestore doc data -> Provider */
 function toProvider(docId: string, raw: ProviderDoc): Provider {
-  // prefer embedded id, then fallback to doc id
   const id = raw.id ?? docId;
 
-  // normalize mapsUrl field
-  const mapsUrl = raw.googleMapsUrl ?? (raw as any).mapsUrl;
+  // Prefer legacy googleMapsUrl, else mapsUrl if present & string
+  const mapsUrl =
+    (typeof raw.googleMapsUrl === 'string' && raw.googleMapsUrl) ||
+    (typeof raw.mapsUrl === 'string' ? raw.mapsUrl : undefined);
 
-  // Build final Provider (assert name exists; your seed shows it does)
+  // Drop legacy key so UI sees only normalized fields
+  const { googleMapsUrl: _legacy, ...rest } = raw;
+
   return {
-    ...raw,
+    ...rest,
     id,
     mapsUrl,
   } as Provider;
@@ -61,7 +68,11 @@ export async function getFavoriteIds(uid: string): Promise<string[]> {
   return snap.docs.map((d) => d.id);
 }
 
-export async function toggleFavorite(uid: string, providerId: string, next: boolean) {
+export async function toggleFavorite(
+  uid: string,
+  providerId: string,
+  next: boolean,
+): Promise<void> {
   const favRef = doc(db, 'users', uid, 'favorites', providerId);
   if (next) {
     await setDoc(favRef, { createdAt: serverTimestamp() }, { merge: true });
@@ -71,10 +82,12 @@ export async function toggleFavorite(uid: string, providerId: string, next: bool
 }
 
 /** Update a provider by doc id (ignore `id` in the patch) */
-export async function updateProvider(id: string, patch: Partial<Provider>) {
+export async function updateProvider(
+  id: string,
+  patch: Partial<Provider>,
+): Promise<void> {
   const ref = doc(db, 'providers', id);
   const { id: _omit, ...rest } = patch;
-  // Firestore’s UpdateData typing is strict; cast is fine for our partials
   await updateDoc(ref, rest as DocumentData);
 }
 

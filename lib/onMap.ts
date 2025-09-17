@@ -9,12 +9,12 @@ export function onMap(
   mapsUrl?: string,
   name?: string,
   city?: string,
-  country?: string
+  country?: string,
 ) {
   // If given a direct URL, prefer it
   if (mapsUrl && /^https?:\/\//i.test(mapsUrl)) {
     Linking.openURL(mapsUrl).catch(() =>
-      Alert.alert('Error', 'Unable to open Maps app.')
+      Alert.alert('Error', 'Unable to open Maps app.'),
     );
     return;
   }
@@ -33,6 +33,6 @@ export function onMap(
     }) ?? `https://maps.google.com/?q=${query}`;
 
   Linking.openURL(url).catch(() =>
-    Alert.alert('Error', 'Unable to open Maps app.')
+    Alert.alert('Error', 'Unable to open Maps app.'),
   );
 }
