@@ -29,7 +29,8 @@
     "check:hooks": "scripts/check-hooks.sh",
     "postinstall": "npm run check:hooks",
     "fix:prettier": "scripts/fix-prettier.sh",
-    "fix:lint": "scripts/fix-lint.sh"
+    "fix:lint": "scripts/fix-lint.sh",
+    "fix:all": "scripts/fix-all.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
