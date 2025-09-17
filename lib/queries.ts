@@ -19,9 +19,7 @@ function getStr(obj: Record<string, unknown>, key: string): string | undefined {
 
 // ---------- normalization ----------
 
-export function normalizeBilling(
-  billing?: string | null,
-): Provider['billing'] {
+export function normalizeBilling(billing?: string | null): Provider['billing'] {
   if (!billing) return undefined;
   const b = String(billing).trim().toLowerCase();
   if (b === 'direct') return 'Direct';
@@ -111,9 +109,8 @@ export async function fetchProviders(): Promise<Provider[]> {
   return list.map((p) => ({
     ...p,
     billing:
-      normalizeBilling(
-        typeof p.billing === 'string' ? p.billing : undefined,
-      ) ?? p.billing,
+      normalizeBilling(typeof p.billing === 'string' ? p.billing : undefined) ??
+      p.billing,
   }));
 }
 
@@ -135,7 +132,8 @@ export function filterProviders(
   const { country, city, billing } = opts;
 
   return providers.filter((p) => {
-    const okCountry = country && country !== 'All' ? p.country === country : true;
+    const okCountry =
+      country && country !== 'All' ? p.country === country : true;
     const okCity =
       city && city !== 'All'
         ? (p.city ?? '').toLowerCase() === city.toLowerCase()

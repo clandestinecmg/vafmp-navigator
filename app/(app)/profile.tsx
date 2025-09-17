@@ -15,11 +15,21 @@ type Field = {
 
 const FIELDS: Field[] = [
   { key: 'fullName', label: 'Full name', autoCapitalize: 'words' },
-  { key: 'ssn', label: 'SSN (123-45-6789)', keyboardType: 'numeric', secureTextEntry: true },
+  {
+    key: 'ssn',
+    label: 'SSN (123-45-6789)',
+    keyboardType: 'numeric',
+    secureTextEntry: true,
+  },
   { key: 'dob', label: 'DOB (YYYY-MM-DD)', keyboardType: 'numeric' },
   { key: 'address', label: 'Address', autoCapitalize: 'words' },
   { key: 'phone', label: 'Phone', keyboardType: 'phone-pad' },
-  { key: 'email', label: 'Email', keyboardType: 'email-address', autoCapitalize: 'none' },
+  {
+    key: 'email',
+    label: 'Email',
+    keyboardType: 'email-address',
+    autoCapitalize: 'none',
+  },
 ];
 
 export default function ProfileScreen() {
@@ -35,25 +45,27 @@ export default function ProfileScreen() {
     >
       <Text style={shared.title}>Profile (Local Only)</Text>
 
-      {FIELDS.map(({ key, label, keyboardType, autoCapitalize, secureTextEntry }) => (
-        <View key={key} style={shared.card}>
-          <Text style={shared.text}>{label}</Text>
-          <TextInput
-            value={profile[key] ?? ''}
-            onChangeText={(t) => setField(key, t)}
-            keyboardType={keyboardType}
-            autoCapitalize={autoCapitalize}
-            secureTextEntry={secureTextEntry}
-            placeholderTextColor={colors.muted}
-            style={{
-              color: colors.text,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-              paddingVertical: 8,
-            }}
-          />
-        </View>
-      ))}
+      {FIELDS.map(
+        ({ key, label, keyboardType, autoCapitalize, secureTextEntry }) => (
+          <View key={key} style={shared.card}>
+            <Text style={shared.text}>{label}</Text>
+            <TextInput
+              value={profile[key] ?? ''}
+              onChangeText={(t) => setField(key, t)}
+              keyboardType={keyboardType}
+              autoCapitalize={autoCapitalize}
+              secureTextEntry={secureTextEntry}
+              placeholderTextColor={colors.muted}
+              style={{
+                color: colors.text,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+                paddingVertical: 8,
+              }}
+            />
+          </View>
+        ),
+      )}
 
       <Pressable
         disabled={!hydrated || saving}

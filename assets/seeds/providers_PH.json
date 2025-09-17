@@ -6,7 +6,10 @@
     "billingType": "Direct",
     "lat": 14.5535,
     "lng": 121.0473,
-    "contact": { "phone": "+63 2 8789 7700", "website": "https://www.stlukes.com.ph/" },
+    "contact": {
+      "phone": "+63 2 8789 7700",
+      "website": "https://www.stlukes.com.ph/"
+    },
     "tags": ["general", "specialty"]
   },
   {
