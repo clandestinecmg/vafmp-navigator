@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔎 Running lint-staged (on staged files)…"
+npx --no-install lint-staged || exit 1
+
+echo "🧹 ESLint (full project)…"
+npm run -s lint || exit 1
+
+echo "🧠 Typecheck (no emit)…"
+npx --no-install tsc --noEmit || exit 1
+
+echo "✅ pre-commit checks passed."
