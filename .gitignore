@@ -9,3 +9,4 @@ snapshot/
 *.bak.*
 .DS_Store
 .env
+snapshots/
