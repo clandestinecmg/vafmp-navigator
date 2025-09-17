@@ -38,7 +38,11 @@
     "deps:update": "gh workflow run Dependabot",
     "sec:scan": "gh workflow run Security",
     "gh:alias": "gh alias set ci 'run list --limit 5'",
-    "gh:checkup": "scripts/gh-helpers.sh"
+    "gh:checkup": "scripts/gh-helpers.sh",
+    "gh:check": "scripts/gh-helpers.sh",
+    "gh:check:security": "scripts/gh-helpers.sh Security",
+    "gh:check:ci": "scripts/gh-helpers.sh CI",
+    "gh:check:tests": "scripts/gh-helpers.sh Tests"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

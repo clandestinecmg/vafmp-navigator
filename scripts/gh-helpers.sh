@@ -1,10 +1,21 @@
 #!/bin/sh
 set -e
 
-echo "🔍 Checking latest GitHub Actions run…"
+WORKFLOW_NAME="$1"
 
-# Get latest run info
-LATEST_RUN=$(gh run list --limit 1 --json databaseId,status,conclusion --jq '.[0]')
+if [ -n "$WORKFLOW_NAME" ]; then
+  echo "🔍 Checking latest run for workflow: $WORKFLOW_NAME"
+  LATEST_RUN=$(gh run list --workflow "$WORKFLOW_NAME" --limit 1 --json databaseId,status,conclusion --jq '.[0]')
+else
+  echo "🔍 Checking latest run (any workflow)…"
+  LATEST_RUN=$(gh run list --limit 1 --json databaseId,status,conclusion --jq '.[0]')
+fi
+
+if [ -z "$LATEST_RUN" ]; then
+  echo "⚠️  No runs found for this repo/workflow."
+  exit 0
+fi
+
 RUN_ID=$(echo "$LATEST_RUN" | jq -r '.databaseId')
 STATUS=$(echo "$LATEST_RUN" | jq -r '.status')
 CONCLUSION=$(echo "$LATEST_RUN" | jq -r '.conclusion')
@@ -17,5 +28,5 @@ if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
   echo "❌ Last run failed — re-running…"
   gh run rerun "$RUN_ID"
 else
-  echo "✅ Last run is healthy. No rerun needed."
+  echo "✅ Run is healthy. No rerun needed."
 fi
