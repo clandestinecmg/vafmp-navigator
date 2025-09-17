@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🧪 Pre-push: format check, lint, typecheck…"
+npm run -s format:check || exit 1
+npm run -s lint || exit 1
+npx --no-install tsc --noEmit || exit 1
+
+echo "🚀 pre-push checks passed."
