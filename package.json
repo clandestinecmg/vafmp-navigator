@@ -37,7 +37,8 @@
     "pr:list": "gh pr list --assignee @me --state open",
     "deps:update": "gh workflow run Dependabot",
     "sec:scan": "gh workflow run Security",
-    "gh:alias": "gh alias set ci 'run list --limit 5'"
+    "gh:alias": "gh alias set ci 'run list --limit 5'",
+    "gh:checkup": "scripts/gh-helpers.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
