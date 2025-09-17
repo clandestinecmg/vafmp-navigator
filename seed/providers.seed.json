@@ -7,7 +7,7 @@
     "regionTag": "Bangkok",
     "billingType": "direct",
     "lat": 13.7473,
-    "lng": 100.5530,
+    "lng": 100.553,
     "phone": "+66 2011 2222",
     "website": "https://www.bumrungrad.com",
     "address": "33 Sukhumvit 3, Khlong Toei Nuea, Watthana, Bangkok"
@@ -32,8 +32,8 @@
     "city": "Ho Chi Minh City",
     "regionTag": "HCMC",
     "billingType": "direct",
-    "lat": 10.8010,
-    "lng": 106.7150,
+    "lat": 10.801,
+    "lng": 106.715,
     "phone": "+84 28 3622 1166",
     "website": "https://www.vinmec.com",
     "address": "208 Nguyen Huu Canh, Ward 22, Binh Thanh District"
