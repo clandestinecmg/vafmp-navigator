@@ -1,0 +1,31 @@
+name: Verify Signed Commits
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-signatures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify commit signatures
+        run: |
+          echo "🔍 Checking commit signatures (bots exempt)..."
+          git fetch origin main
+          git log origin/main..HEAD --pretty='%h %G? %an <%ae> %s' | tee verify_signed.log
+          
+          # Fail only if commit unsigned AND not from bot
+          UNSIGNED=$(grep -v ' G ' verify_signed.log | grep -v 'dependabot\[bot\]' | grep -v 'github-actions\[bot\]' || true)
+
+          if [ -n "$UNSIGNED" ]; then
+            echo "❌ Found unsigned commits:"
+            echo "$UNSIGNED"
+            exit 1
+          fi
+
+          echo "✅ All commits verified (bots exempt)."
