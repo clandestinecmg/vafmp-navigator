@@ -1,5 +1,10 @@
 # VAFMP Navigator
 
+[![CI](https://github.com/clandestinecmg/vafmp-navigator/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/clandestinecmg/vafmp-navigator/actions/workflows/ci.yml)
+![Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)
+![ESLint](https://img.shields.io/badge/lint-eslint-4B32C3.svg)
+![TypeScript](https://img.shields.io/badge/language-typescript-3178C6.svg)
+
 A React Native + Expo app (Expo Router, TanStack Query, Firebase Auth/Firestore) for finding, favoriting, and contacting VAFMP providers, plus resources and crisis info.
 
 ---
