@@ -30,7 +30,14 @@
     "postinstall": "npm run check:hooks",
     "fix:prettier": "scripts/fix-prettier.sh",
     "fix:lint": "scripts/fix-lint.sh",
-    "fix:all": "scripts/fix-all.sh"
+    "fix:all": "scripts/fix-all.sh",
+    "ci:status": "gh run list --limit 5",
+    "ci:rerun": "gh run rerun $(gh run list --limit 1 --json databaseId --jq '.[0].databaseId')",
+    "pr:create": "gh pr create --fill --base main",
+    "pr:list": "gh pr list --assignee @me --state open",
+    "deps:update": "gh workflow run Dependabot",
+    "sec:scan": "gh workflow run Security",
+    "gh:alias": "gh alias set ci 'run list --limit 5'"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
