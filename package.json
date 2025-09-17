@@ -28,7 +28,8 @@
     "prepare": "husky",
     "check:hooks": "scripts/check-hooks.sh",
     "postinstall": "npm run check:hooks",
-    "fix:prettier": "scripts/fix-prettier.sh"
+    "fix:prettier": "scripts/fix-prettier.sh",
+    "fix:lint": "scripts/fix-lint.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
