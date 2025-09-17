@@ -27,8 +27,7 @@ export function useProfile() {
       await saveProfile(next);
       setProfile(next);
     } catch (e: unknown) {
-      const msg =
-        e instanceof Error ? e.message : 'Could not save profile';
+      const msg = e instanceof Error ? e.message : 'Could not save profile';
       Alert.alert('Profile Error', msg);
       throw e;
     } finally {

@@ -39,12 +39,8 @@ export function redactProfile(p: Profile): Profile {
   return {
     ...p,
     ssn: p.ssn ? '***-**-' + p.ssn.slice(-4) : '',
-    email: p.email
-      ? mask(p.email, Math.max(0, p.email.indexOf('@')))
-      : '',
-    phone: p.phone
-      ? mask(p.phone, Math.max(0, p.phone.length - 4))
-      : '',
+    email: p.email ? mask(p.email, Math.max(0, p.email.indexOf('@'))) : '',
+    phone: p.phone ? mask(p.phone, Math.max(0, p.phone.length - 4)) : '',
     address: p.address ? '[REDACTED ADDRESS]' : '',
   };
 }

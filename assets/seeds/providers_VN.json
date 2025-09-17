@@ -6,7 +6,10 @@
     "billingType": "Direct",
     "lat": 10.7293,
     "lng": 106.7215,
-    "contact": { "phone": "+84 28 5411 3333", "website": "https://www.fvhospital.com/" },
+    "contact": {
+      "phone": "+84 28 5411 3333",
+      "website": "https://www.fvhospital.com/"
+    },
     "tags": ["general", "international"]
   },
   {

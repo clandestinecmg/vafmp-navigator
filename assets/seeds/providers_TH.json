@@ -6,7 +6,10 @@
     "billingType": "Direct",
     "lat": 13.7447,
     "lng": 100.5681,
-    "contact": { "phone": "+66 2310 3000", "website": "https://www.bangkokhospital.com/" },
+    "contact": {
+      "phone": "+66 2310 3000",
+      "website": "https://www.bangkokhospital.com/"
+    },
     "tags": ["general", "emergency"]
   },
   {

@@ -6,7 +6,10 @@
     "billingType": "Direct",
     "lat": 11.5401,
     "lng": 104.9174,
-    "contact": { "phone": "+855 23 991 000", "website": "https://www.royalphnompenhhospital.com/" },
+    "contact": {
+      "phone": "+855 23 991 000",
+      "website": "https://www.royalphnompenhhospital.com/"
+    },
     "tags": ["general"]
   },
   {
