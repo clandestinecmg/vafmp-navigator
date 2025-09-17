@@ -26,7 +26,8 @@
     "format:check": "prettier --check .",
     "check": "npm run lint && tsc --noEmit",
     "prepare": "husky",
-    "check:hooks": "scripts/check-hooks.sh"
+    "check:hooks": "scripts/check-hooks.sh",
+    "postinstall": "npm run check:hooks"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
