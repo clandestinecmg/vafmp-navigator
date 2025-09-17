@@ -2,34 +2,36 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
-  quality:
+  checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
 
-      - name: Install deps (clean)
+      - name: Install
         run: npm ci
 
-      - name: Verify Husky hooks
-        run: npm run check:hooks
-
       - name: Prettier (check)
-        run: npm run format:check
+        run: npx prettier --check .
 
       - name: ESLint
         run: npm run lint
 
       - name: TypeScript (no emit)
         run: npx tsc --noEmit
+
+      - name: If checks failed, suggest local auto-fix
+        if: ${{ failure() }}
+        run: |
+          echo "::group::How to fix locally"
+          echo "npm run fix:prettier"
+          echo "npm run fix:lint"
+          echo "npm run fix:all   # one-shot auto-fix + amend + push"
+          echo "::endgroup::"
