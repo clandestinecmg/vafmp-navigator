@@ -11,3 +11,4 @@ Even if you’re “future you,” this guide will help you work safely and cons
    git clone git@github.com:clandestinecmg/vafmp-navigator.git
    cd vafmp-navigator
    npm install
+   ```
