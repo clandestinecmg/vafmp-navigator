@@ -37,7 +37,11 @@ export default function Login() {
         </Text>
 
         <View style={styles.row}>
-          <Pressable onPress={onAnon} style={shared.pill} accessibilityRole="button">
+          <Pressable
+            onPress={onAnon}
+            style={shared.pill}
+            accessibilityRole="button"
+          >
             <View style={styles.btnRow}>
               <MaterialIcons name="login" size={16} color={colors.text} />
               <Text style={styles.btnText}>Anon sign-in</Text>

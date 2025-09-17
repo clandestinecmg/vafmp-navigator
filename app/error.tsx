@@ -15,7 +15,9 @@ export default function ErrorScreen() {
       <View style={{ flexDirection: 'row', gap: 12, padding: 16 }}>
         <Link href="/(app)/home" asChild>
           <Pressable style={shared.pill}>
-            <Text style={{ color: colors.text, fontWeight: '700' }}>Go Home</Text>
+            <Text style={{ color: colors.text, fontWeight: '700' }}>
+              Go Home
+            </Text>
           </Pressable>
         </Link>
       </View>

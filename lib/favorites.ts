@@ -1,4 +1,3 @@
-// lib/favorites.ts
 import {
   doc,
   setDoc,
@@ -8,25 +7,13 @@ import {
   serverTimestamp,
   query,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db } from './firebase';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-
-export type Provider = {
-  id: string;
-  name: string;
-  city?: string;
-  country?: string;
-  billing?: 'Direct' | 'Reimbursement';
-  mapsUrl?: string;
-};
-
-const providersCol = collection(db, 'providers');
-export const providerDoc = (id: string) => doc(providersCol, id);
 
 export const favoritesCol = (uid: string) =>
   collection(db, 'users', uid, 'favorites');
 
-// --- Read favorites (IDs only) for a user ---
+/** Read favorite IDs for a user (array of provider IDs) */
 export function useFavoriteIds(uid?: string | null) {
   return useQuery({
     queryKey: ['favoriteIds', uid],
@@ -34,19 +21,25 @@ export function useFavoriteIds(uid?: string | null) {
     queryFn: async () => {
       if (!uid) return [] as string[];
       const snap = await getDocs(query(favoritesCol(uid)));
-      return snap.docs.map((d) => d.id); // each doc id == providerId
+      return snap.docs.map((d) => d.id);
     },
   });
 }
 
-// --- Toggle favorite for a user ---
+/** Toggle favorite with optimistic UI */
 export function useToggleFavorite(uid?: string | null) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (p: { providerId: string; next: boolean }) => {
+    mutationFn: async ({
+      providerId,
+      next,
+    }: {
+      providerId: string;
+      next: boolean;
+    }) => {
       if (!uid) throw new Error('Not signed in');
-      const favDoc = doc(db, 'users', uid, 'favorites', p.providerId);
-      if (p.next) {
+      const favDoc = doc(db, 'users', uid, 'favorites', providerId);
+      if (next) {
         await setDoc(favDoc, { createdAt: serverTimestamp() }, { merge: true });
       } else {
         await deleteDoc(favDoc);
@@ -63,7 +56,7 @@ export function useToggleFavorite(uid?: string | null) {
       return { prev };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prev && uid) qc.setQueryData(['favoriteIds', uid], ctx.prev);
+      if (uid && ctx?.prev) qc.setQueryData(['favoriteIds', uid], ctx.prev);
     },
     onSettled: () => {
       if (uid) qc.invalidateQueries({ queryKey: ['favoriteIds', uid] });

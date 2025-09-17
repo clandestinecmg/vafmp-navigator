@@ -1,21 +1,35 @@
 // app/(app)/resources.tsx
 import * as React from 'react';
-import { View, Text, Linking, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Linking,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { shared, colors } from '../../styles/shared';
-import { VAFMP_LINKS, VAFMP_CONTACT, VAFMP_TOLL_FREE } from '../../lib/resourcesData';
+import {
+  VAFMP_LINKS,
+  VAFMP_CONTACT,
+  VAFMP_TOLL_FREE,
+} from '../../lib/resourcesData';
 import Background from '../../components/Background';
 
 export default function Resources() {
   const openUrl = (url: string) =>
-    Linking.openURL(url).catch(() => Alert.alert('Error', 'Unable to open link.'));
+    Linking.openURL(url).catch(() =>
+      Alert.alert('Error', 'Unable to open link.'),
+    );
   const sendEmail = () =>
     Linking.openURL(`mailto:${VAFMP_CONTACT.email}`).catch(() =>
-      Alert.alert('Error', 'Unable to open mail client.')
+      Alert.alert('Error', 'Unable to open mail client.'),
     );
   const callNumber = (num: string) =>
     Linking.openURL(`tel:${num.replace(/[^\d+]/g, '')}`).catch(() =>
-      Alert.alert('Error', 'Unable to open dialer.')
+      Alert.alert('Error', 'Unable to open dialer.'),
     );
 
   return (
@@ -33,7 +47,12 @@ export default function Resources() {
               style={styles.row}
               onPress={() => openUrl(link.url)}
             >
-              <MaterialIcons name="open-in-new" size={18} color={colors.gold} style={styles.icon} />
+              <MaterialIcons
+                name="open-in-new"
+                size={18}
+                color={colors.gold}
+                style={styles.icon}
+              />
               <Text style={styles.link}>{link.label}</Text>
             </TouchableOpacity>
           ))}
@@ -43,12 +62,27 @@ export default function Resources() {
         <View style={shared.card}>
           <Text style={styles.sectionTitle}>Contact</Text>
           <TouchableOpacity style={styles.row} onPress={sendEmail}>
-            <MaterialIcons name="email" size={18} color={colors.blue} style={styles.icon} />
+            <MaterialIcons
+              name="email"
+              size={18}
+              color={colors.blue}
+              style={styles.icon}
+            />
             <Text style={styles.link}>Email VAFMP ({VAFMP_CONTACT.email})</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.row} onPress={() => callNumber(VAFMP_CONTACT.mainLine.number)}>
-            <MaterialIcons name="call" size={18} color={colors.green} style={styles.icon} />
-            <Text style={styles.link}>FMP Main Line: {VAFMP_CONTACT.mainLine.number}</Text>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => callNumber(VAFMP_CONTACT.mainLine.number)}
+          >
+            <MaterialIcons
+              name="call"
+              size={18}
+              color={colors.green}
+              style={styles.icon}
+            />
+            <Text style={styles.link}>
+              FMP Main Line: {VAFMP_CONTACT.mainLine.number}
+            </Text>
           </TouchableOpacity>
           <Text style={styles.muted}>
             TTY: {VAFMP_CONTACT.mainLine.tty} • {VAFMP_CONTACT.mainLine.hours}
@@ -62,9 +96,19 @@ export default function Resources() {
             data={VAFMP_TOLL_FREE}
             keyExtractor={(item) => item.country}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.row} onPress={() => callNumber(item.phone)}>
-                <MaterialIcons name="phone" size={18} color={colors.green} style={styles.icon} />
-                <Text style={styles.link}>{item.country}: {item.phone}</Text>
+              <TouchableOpacity
+                style={styles.row}
+                onPress={() => callNumber(item.phone)}
+              >
+                <MaterialIcons
+                  name="phone"
+                  size={18}
+                  color={colors.green}
+                  style={styles.icon}
+                />
+                <Text style={styles.link}>
+                  {item.country}: {item.phone}
+                </Text>
               </TouchableOpacity>
             )}
             ItemSeparatorComponent={() => <View style={{ height: 6 }} />}

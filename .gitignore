@@ -1,44 +1,11 @@
-# Dependencies
-/node_modules
-
-# Expo / React Native
-.expo
-.expo-shared
+node_modules/
+dist/
+build/
 .expo/
-*.log
-*.tmp
-*.tmp.*
-*.bak
-*.swp
-
-# Environment files
-.env
-.env.*
-!.env.example
-
-# macOS
+.expo-shared/
+coverage/
+logs/
+snapshot/
+*.bak.*
 .DS_Store
-
-# iOS / Android native directories
-ios/
-android/
-
-# Build / Cache
-/dist
-/build
-/web-build
-/coverage
-
-# IDE / Editor junk
-.vscode/
-.idea/
-*.iml
-
-# Expo generated
-expo-env.d.ts
-
-# Archives / Snapshots
-*.zip
-*.xz
-*.tar
-*.gz
+.env

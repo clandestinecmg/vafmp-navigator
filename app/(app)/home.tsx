@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Background from '../../components/Background';
-import { shared, colors } from '../../styles/shared';
+import { shared } from '../../styles/shared';
 
 export default function Home() {
   return (
@@ -13,7 +13,8 @@ export default function Home() {
           If you can see this, tabs and fonts are loaded. 🎉
         </Text>
         <Text style={shared.text}>
-          Next: we’ll wrap other screens and recheck icons in Providers & Favorites.
+          Next: we’ll wrap other screens and recheck icons in Providers &
+          Favorites.
         </Text>
       </View>
     </Background>

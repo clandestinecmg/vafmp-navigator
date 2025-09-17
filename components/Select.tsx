@@ -15,11 +15,11 @@ import { colors } from '../styles/shared';
 export type Option = { label: string; value: string };
 
 type Props = {
-  label: string;                 // visible label on the closed field ("Country", "City", etc.)
-  value: string | null;          // current selected value
-  options: Option[];             // choices
+  label: string; // visible label on the closed field ("Country", "City", etc.)
+  value: string | null; // current selected value
+  options: Option[]; // choices
   onChange: (v: string | null) => void;
-  placeholder?: string;          // text when value === null (defaults to label)
+  placeholder?: string; // text when value === null (defaults to label)
   disabled?: boolean;
   icon?: keyof typeof MaterialIcons.glyphMap; // optional leading icon name
 };
@@ -34,7 +34,7 @@ export default function Select({
   icon,
 }: Props) {
   const [open, setOpen] = React.useState(false);
-  const current = options.find(o => o.value === value) || null;
+  const current = options.find((o) => o.value === value) || null;
 
   return (
     <>
@@ -48,7 +48,12 @@ export default function Select({
         ]}
       >
         {icon ? (
-          <MaterialIcons name={icon} size={18} color={colors.muted} style={{ marginRight: 6 }} />
+          <MaterialIcons
+            name={icon}
+            size={18}
+            color={colors.muted}
+            style={{ marginRight: 6 }}
+          />
         ) : null}
         <Text
           numberOfLines={1}
@@ -85,28 +90,44 @@ export default function Select({
           >
             {/* “All” / Clear */}
             <Pressable
-              onPress={() => { onChange(null); setOpen(false); }}
-              style={({ pressed }) => [styles.option, pressed && styles.optionPressed]}
+              onPress={() => {
+                onChange(null);
+                setOpen(false);
+              }}
+              style={({ pressed }) => [
+                styles.option,
+                pressed && styles.optionPressed,
+              ]}
             >
               <Text style={styles.optionText}>All</Text>
             </Pressable>
 
-            {options.map(o => {
+            {options.map((o) => {
               const active = value === o.value;
               return (
                 <Pressable
                   key={o.value}
-                  onPress={() => { onChange(o.value); setOpen(false); }}
+                  onPress={() => {
+                    onChange(o.value);
+                    setOpen(false);
+                  }}
                   style={({ pressed }) => [
                     styles.option,
                     pressed && styles.optionPressed,
                     active && styles.optionActive,
                   ]}
                 >
-                  <Text style={[styles.optionText, active && styles.optionTextActive]}>
+                  <Text
+                    style={[
+                      styles.optionText,
+                      active && styles.optionTextActive,
+                    ]}
+                  >
                     {o.label}
                   </Text>
-                  {active ? <MaterialIcons name="check" size={18} color="#111" /> : null}
+                  {active ? (
+                    <MaterialIcons name="check" size={18} color="#111" />
+                  ) : null}
                 </Pressable>
               );
             })}
@@ -133,9 +154,15 @@ const styles = StyleSheet.create({
   fieldDisabled: { opacity: 0.5 },
   fieldPressed: { opacity: 0.85 },
   fieldText: { color: colors.text, flex: 1, fontSize: 14, fontWeight: '600' },
-  placeholder: { color: colors.muted, fontWeight: Platform.OS === 'ios' ? '600' : '700' },
+  placeholder: {
+    color: colors.muted,
+    fontWeight: Platform.OS === 'ios' ? '600' : '700',
+  },
 
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.3)' },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
   panel: {
     position: 'absolute',
     left: 16,
@@ -172,7 +199,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   optionPressed: { backgroundColor: '#f5f5f5' },
-  optionActive: { backgroundColor: '#eef6ff', borderWidth: 1, borderColor: '#cfe1ff' },
+  optionActive: {
+    backgroundColor: '#eef6ff',
+    borderWidth: 1,
+    borderColor: '#cfe1ff',
+  },
   optionText: { color: '#111', fontSize: 14, fontWeight: '700' }, // ← black text
   optionTextActive: { color: '#0b3ea8' },
 });

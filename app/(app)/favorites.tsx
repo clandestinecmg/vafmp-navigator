@@ -1,4 +1,3 @@
-// app/(app)/favorites.tsx
 import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -9,23 +8,21 @@ import { shared } from '../../styles/shared';
 import ProviderCard from '../../components/ProviderCard';
 
 import { auth } from '../../lib/authApi';
-import { getAllProviders, getFavoriteIds, toggleFavorite } from '../../lib/firestore';
+import { getAllProviders, type Provider } from '../../lib/firestore';
+import { useFavoriteIds, useToggleFavorite } from '../../lib/favorites';
 
 export default function Favorites() {
   const uid = auth.currentUser?.uid ?? null;
 
-  const { data: providers = [] } = useQuery({
+  const { data: providers = [] } = useQuery<Provider[]>({
     queryKey: ['providers'],
     queryFn: getAllProviders,
   });
 
-  const { data: favIds = [], isLoading } = useQuery({
-    queryKey: ['favorites', uid],
-    queryFn: () => getFavoriteIds(uid!),
-    enabled: !!uid,
-  });
+  const { data: favIds = [], isLoading } = useFavoriteIds(uid);
+  const toggleFav = useToggleFavorite(uid);
 
-  const favorites = providers.filter(p => favIds.includes(p.id));
+  const favorites: Provider[] = providers.filter((p) => favIds.includes(p.id));
 
   return (
     <Background>
@@ -35,7 +32,7 @@ export default function Favorites() {
       <View style={shared.safePad} />
       <Text style={shared.title}>Favorites</Text>
 
-      <FlatList
+      <FlatList<Provider>
         contentContainerStyle={shared.listContent}
         data={favorites}
         keyExtractor={(item) => item.id}
@@ -46,19 +43,18 @@ export default function Favorites() {
               {isLoading
                 ? 'Loading your favorites…'
                 : uid
-                ? 'Your saved providers will appear here.'
-                : 'Sign in to save favorites.'}
+                  ? 'Your saved providers will appear here.'
+                  : 'Sign in to save favorites.'}
             </Text>
           </View>
         }
         renderItem={({ item }) => (
           <ProviderCard
-            item={item as any}
+            item={item}
             isFavorite={true}
-            onToggleFavorite={(id, next) => {
-              if (!uid) return;
-              toggleFavorite(uid, id, next).catch(() => {});
-            }}
+            onToggleFavorite={(id, next) =>
+              toggleFav.mutate({ providerId: id, next })
+            }
           />
         )}
       />

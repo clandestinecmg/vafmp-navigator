@@ -32,7 +32,10 @@ function Chip({
       accessibilityRole="button"
       accessibilityState={{ selected: !!active }}
     >
-      <Text style={[styles.chipText, active && styles.chipTextActive]} numberOfLines={1}>
+      <Text
+        style={[styles.chipText, active && styles.chipTextActive]}
+        numberOfLines={1}
+      >
         {children}
       </Text>
     </Pressable>
@@ -55,7 +58,11 @@ export function FilterBar({ label, options, value, onChange }: Props) {
             All
           </Chip>
           {options.map((o) => (
-            <Chip key={o.value} active={value === o.value} onPress={() => onChange(o.value)}>
+            <Chip
+              key={o.value}
+              active={value === o.value}
+              onPress={() => onChange(o.value)}
+            >
               {o.label}
             </Chip>
           ))}
