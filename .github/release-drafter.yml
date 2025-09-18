@@ -4,10 +4,10 @@ categories:
   - title: '🚀 Features'
     labels: ['feature', 'enhancement']
   - title: '🐛 Fixes'
-    labels: ['bug', 'fix']
+    labels: ['fix', 'bug']
   - title: '🧰 Maintenance'
-    labels: ['chore', 'dependencies']
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+    labels: ['chore', 'ci', 'deps']
+change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
 template: |
-  ## What’s Changed
+  ## What’s changed
   $CHANGES
