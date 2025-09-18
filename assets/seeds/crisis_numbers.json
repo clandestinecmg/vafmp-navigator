@@ -1,0 +1,45 @@
+{
+  "NORTHCOM": [
+    { "label": "Dial 988 then Press 1", "number": "988", "type": "tel" }
+  ],
+  "PACOM": [
+    {
+      "label": "+1 844-702-5493 (off base)",
+      "number": "+18447025493",
+      "type": "tel"
+    },
+    { "label": "DSN 988 (on base)", "number": "988", "type": "dsn" }
+  ],
+  "EUCOM": [
+    {
+      "label": "+1 844-702-5495 (off base)",
+      "number": "+18447025495",
+      "type": "tel"
+    },
+    { "label": "DSN 988 (on base)", "number": "988", "type": "dsn" }
+  ],
+  "CENTCOM": [
+    {
+      "label": "+1 855-422-7719 (off base)",
+      "number": "+18554227719",
+      "type": "tel"
+    },
+    { "label": "DSN 988 (on base)", "number": "988", "type": "dsn" }
+  ],
+  "AFRICOM": [
+    {
+      "label": "+1 888-482-6054 (off base)",
+      "number": "+18884826054",
+      "type": "tel"
+    },
+    { "label": "DSN 988 (on base)", "number": "988", "type": "dsn" }
+  ],
+  "SOUTHCOM": [
+    {
+      "label": "+1 866-989-9599 (off base)",
+      "number": "+18669899599",
+      "type": "tel"
+    },
+    { "label": "DSN 988 (on base)", "number": "988", "type": "dsn" }
+  ]
+}
