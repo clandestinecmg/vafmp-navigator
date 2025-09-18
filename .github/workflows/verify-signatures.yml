@@ -15,7 +15,7 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
             const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const repo  = context.repo.repo;
 
             const commits = await github.paginate(
               github.rest.pulls.listCommits,
