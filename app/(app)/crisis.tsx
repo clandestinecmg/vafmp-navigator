@@ -13,8 +13,10 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
 import ImageZoom from 'react-native-image-pan-zoom';
-import { shared, colors } from '../../styles/shared';
 import crisisNumbers from '../../assets/seeds/crisis_numbers.json';
+import { shared, colors } from '../../styles/shared';
+
+// Local AOR map image
 import aorMap from '../../assets/crisis/dod-aor-map.jpg';
 
 function openURL(url: string) {
@@ -33,9 +35,10 @@ function openSMS(number: string, body?: string) {
 }
 async function copyToClipboard(text: string) {
   await Clipboard.setStringAsync(text);
-  Alert.alert('Copied', `${text} copied to clipboard`);
+  Alert.alert('Copied to clipboard', text);
 }
 
+// Card-specific styles
 const CARD = {
   base: {
     padding: 16,
@@ -52,7 +55,6 @@ const CARD = {
     color: colors.text,
   },
   text: { fontSize: 15, color: colors.text },
-  hint: { fontSize: 13, color: colors.muted, marginTop: 4 },
   link: {
     fontSize: 15,
     textDecorationLine: 'underline' as const,
@@ -60,51 +62,23 @@ const CARD = {
     marginTop: 6,
   },
   btn: {
-    padding: 10,
-    borderRadius: 10,
+    padding: 14,
+    borderRadius: 12,
     alignItems: 'center' as const,
-    marginTop: 6,
+    marginTop: 10,
     backgroundColor: colors.blue,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  btnSecondary: {
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center' as const,
-    marginTop: 6,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
   btnLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600' as const,
     color: '#fff',
-  },
-  btnLabelDark: {
-    fontSize: 14,
-    fontWeight: '600' as const,
-    color: colors.text,
   },
   row: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     marginTop: 4,
-  },
-  dsnBox: {
-    marginTop: 6,
-    padding: 12,
-    borderRadius: 10,
-    backgroundColor: '#f2f3f5',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  dsnLabel: {
-    fontSize: 15,
-    color: colors.text,
-    fontStyle: 'italic' as const,
-    marginBottom: 6,
   },
 };
 
@@ -121,9 +95,7 @@ export default function Crisis() {
     >
       {/* Immediate danger banner */}
       <View style={[CARD.base, { backgroundColor: colors.red }]}>
-        <Text
-          style={[CARD.text, { fontWeight: '700' as const, color: '#fff' }]}
-        >
+        <Text style={[CARD.text, { fontWeight: '700' }]}>
           If you’re in immediate danger, call your local emergency number now.
         </Text>
       </View>
@@ -134,6 +106,10 @@ export default function Crisis() {
         <Text style={CARD.text}>
           24/7 confidential support for Veterans, service members, Guard &
           Reserve, and their families.
+        </Text>
+        <Text style={[CARD.text, { marginTop: 4 }]}>
+          Services: talk/text with trained responders, safety planning, and
+          referrals to VA & local care.
         </Text>
 
         <Pressable
@@ -166,53 +142,50 @@ export default function Crisis() {
       <View style={CARD.base}>
         <Text style={CARD.title}>Calling from Overseas?</Text>
         <Text style={CARD.text}>
-          Dial the U.S. country code (+1) for off-base numbers. If one doesn’t
+          Dialing the U.S. country code is required (+1). If one number doesn’t
           connect, try another region. DSN 988 works from base phones.
         </Text>
 
-        {Object.entries(
-          crisisNumbers as Record<
-            string,
-            { label: string; number: string; type: 'tel' | 'dsn' }[]
-          >,
-        ).map(([region, entries]) => (
+        {Object.entries(crisisNumbers).map(([region, entries]) => (
           <View key={region} style={{ marginTop: 12 }}>
             <Text style={[CARD.text, { fontWeight: '700' }]}>{region}</Text>
-
-            {entries.map((entry, idx) => {
-              if (entry.type === 'tel') {
-                return (
-                  <View key={`${region}-tel-${idx}`} style={{ marginTop: 6 }}>
-                    <Pressable onPress={() => openTel(entry.number)}>
-                      <Text style={CARD.link}>{entry.label}</Text>
-                    </Pressable>
-                  </View>
-                );
-              }
-
-              // DSN style: boxed, italic label, Copy button
-              return (
-                <View key={`${region}-dsn-${idx}`} style={CARD.dsnBox}>
-                  <Text style={CARD.dsnLabel}>{entry.label}</Text>
+            {entries.map((entry, idx) => (
+              <View key={idx} style={{ flexDirection: 'row', marginTop: 4 }}>
+                <Pressable
+                  onPress={() =>
+                    entry.type === 'tel' ? openTel(entry.number) : undefined
+                  }
+                >
+                  <Text style={CARD.link}>{entry.label}</Text>
+                </Pressable>
+                {entry.type === 'dsn' && (
                   <Pressable
-                    style={CARD.btnSecondary}
+                    style={[
+                      CARD.btn,
+                      {
+                        marginTop: 0,
+                        marginLeft: 10,
+                        paddingVertical: 6,
+                        paddingHorizontal: 12,
+                      },
+                    ]}
                     onPress={() => copyToClipboard(entry.number)}
                   >
-                    <Text style={CARD.btnLabelDark}>Copy Number</Text>
+                    <Text style={[CARD.btnLabel, { fontSize: 14 }]}>
+                      Copy DSN
+                    </Text>
                   </Pressable>
-                  <Text style={CARD.hint}>
-                    DSN numbers don’t dial from mobile networks.
-                  </Text>
-                </View>
-              );
-            })}
+                )}
+              </View>
+            ))}
           </View>
         ))}
       </View>
 
-      {/* AOR Map */}
+      {/* AOR Map (zoom & pan) */}
       <View style={CARD.base}>
         <Text style={CARD.title}>DoD Areas of Responsibility (Map)</Text>
+
         <View
           style={{
             borderRadius: 12,
@@ -236,11 +209,13 @@ export default function Crisis() {
           >
             <Image
               source={aorMap}
+              accessibilityLabel="Map showing Department of Defense geographic combatant commands and their areas of responsibility"
               style={{ width: cropWidth, height: cropHeight }}
               resizeMode="contain"
             />
           </ImageZoom>
         </View>
+
         <Text style={[CARD.text, { marginTop: 8 }]}>
           Pinch to zoom and drag to pan. Double-tap to zoom.
         </Text>
