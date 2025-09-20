@@ -1,0 +1,39 @@
+name: Verify Signed Commits
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check commit verification via GitHub API
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            const commits = await github.paginate(
+              github.rest.pulls.listCommits,
+              { owner, repo, pull_number: pr.number, per_page: 100 }
+            );
+
+            const offenders = commits.filter(c => {
+              const verified = c.commit?.verification?.verified === true;
+              const isBot = (c.author?.type === 'Bot') || (c.committer?.type === 'Bot');
+              return !verified && !isBot;
+            });
+
+            if (offenders.length) {
+              core.info("Unsigned/unverified commits (excluding bots):");
+              for (const o of offenders) {
+                core.info(`${o.sha.slice(0,7)} ${o.commit?.message?.split('\n')[0]}`);
+              }
+              core.setFailed(`Found ${offenders.length} unsigned/unverified commits.`);
+            } else {
+              core.info("✅ All non-bot commits are verified.");
+            }

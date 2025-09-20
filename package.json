@@ -42,7 +42,11 @@
     "gh:check": "scripts/gh-helpers.sh",
     "gh:check:security": "scripts/gh-helpers.sh Security",
     "gh:check:ci": "scripts/gh-helpers.sh CI",
-    "gh:check:tests": "scripts/gh-helpers.sh Tests"
+    "gh:check:tests": "scripts/gh-helpers.sh Tests",
+    "resign": "scripts/resign-push.sh",
+    "harden": "scripts/auto-protect.sh",
+    "setup:signing": "scripts/setup-signing.sh",
+    "fix:ci": "scripts/fix-ci.sh"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -69,7 +73,8 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.8",
+    "expo-clipboard": "~7.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
