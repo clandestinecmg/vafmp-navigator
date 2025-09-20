@@ -21,7 +21,15 @@ export const colors = {
   cardBorder: '#1f2937',
 };
 
-// Top safe inset (“notch tax” — you pay it whether you like it or not)
+// ----- Typography scale (global) --------------------------------------------
+// Bump everything ~16% safely. You can change this to 1.2 if you want larger.
+const SCALE = 1.16;
+
+// Helper to scale font sizes and auto-derive a comfortable lineHeight.
+const fs = (n: number) => Math.round(n * SCALE);
+const lh = (n: number) => Math.round(fs(n) * 1.4);
+
+// Top safe inset (“notch tax”)
 const topSafe =
   Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 12 : 16;
 
@@ -36,14 +44,24 @@ export const shared = StyleSheet.create({
   // Typography
   title: {
     color: colors.text,
-    fontSize: 24, // bumped from 22 for readability
+    fontSize: fs(24), // was 24
+    lineHeight: lh(24),
     fontWeight: '800',
     paddingHorizontal: 16,
-    marginBottom: 8,
-    // Fun fact: if this breaks, it’s always the font size. Always.
+    marginBottom: 10, // tiny bump helps with larger type
   },
-  text: { color: colors.text, paddingHorizontal: 16, fontSize: 16 }, // slight bump
-  textMuted: { color: colors.muted, paddingHorizontal: 16, fontSize: 15 },
+  text: {
+    color: colors.text,
+    paddingHorizontal: 16,
+    fontSize: fs(16), // was 16
+    lineHeight: lh(16),
+  },
+  textMuted: {
+    color: colors.muted,
+    paddingHorizontal: 16,
+    fontSize: fs(15), // was 15
+    lineHeight: lh(15),
+  },
 
   // Common rows & pills
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
@@ -52,7 +70,6 @@ export const shared = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     backgroundColor: colors.border,
-    // Infinite pill radius = infinite wisdom
   },
 
   // Cards / lists
@@ -60,51 +77,57 @@ export const shared = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
-    padding: 14, // tiny bump
+    padding: 16, // was 14; give text breathing room
     borderRadius: 12,
     marginHorizontal: 16,
-    marginTop: 8, // scientifically fixes 90% of spacing bugs
+    marginTop: 10, // was 8; spacing scales with type
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8, // was 6
     justifyContent: 'space-between',
   },
   listContent: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 16,
-    gap: 12,
+    paddingHorizontal: 14, // was 12
+    paddingTop: 10, // was 8
+    paddingBottom: 18, // was 16
+    gap: 14, // was 12
   },
 
   // Badges (billing)
   badge: {
     borderRadius: 999,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5, // slight bump
     backgroundColor: colors.border,
   },
   badgeText: {
     color: colors.text,
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: fs(12), // was 12
+    lineHeight: lh(12),
     letterSpacing: 0.3,
   },
-  badgeDirect: { backgroundColor: '#065f46' }, // green-800 (direct = straight to business)
-  badgeReimb: { backgroundColor: '#7f1d1d' }, // red-900 (reimbursement = red tape 😉)
+  badgeDirect: { backgroundColor: '#065f46' }, // green-800
+  badgeReimb: { backgroundColor: '#7f1d1d' }, // red-900
 
   // Action row / buttons (call, email, map)
-  actionRow: { flexDirection: 'row', gap: 12, marginTop: 12 },
+  actionRow: { flexDirection: 'row', gap: 12, marginTop: 14 }, // was 12
   actionBtn: {
     backgroundColor: colors.bg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 12,
+    padding: 14, // was 12
     borderRadius: 10,
-    // Press me, I dare you
   },
 
   // Empty & helpers
-  empty: { color: colors.muted, paddingHorizontal: 16, paddingVertical: 8 }, // “nothing to see here”
+  empty: {
+    color: colors.muted,
+    paddingHorizontal: 16,
+    paddingVertical: 10, // was 8
+    fontSize: fs(15),
+    lineHeight: lh(15),
+  },
 });
