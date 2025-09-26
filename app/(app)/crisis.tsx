@@ -10,8 +10,10 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
 import ImageZoom from 'react-native-image-pan-zoom';
+import crisisNumbers from '../../assets/seeds/crisis_numbers.json';
 import { shared, colors } from '../../styles/shared';
 
 // Local AOR map image
@@ -30,6 +32,10 @@ function openSMS(number: string, body?: string) {
   Linking.openURL(
     `sms:${number}${body ? `${sep}body=${encodeURIComponent(body)}` : ''}`,
   ).catch(() => Alert.alert('Could not open messages'));
+}
+async function copyToClipboard(text: string) {
+  await Clipboard.setStringAsync(text);
+  Alert.alert('Copied to clipboard', text);
 }
 
 // Card-specific styles
@@ -89,7 +95,7 @@ export default function Crisis() {
     >
       {/* Immediate danger banner */}
       <View style={[CARD.base, { backgroundColor: colors.red }]}>
-        <Text style={[CARD.text, { fontWeight: '700' as const }]}>
+        <Text style={[CARD.text, { fontWeight: '700' }]}>
           If you’re in immediate danger, call your local emergency number now.
         </Text>
       </View>
@@ -136,20 +142,44 @@ export default function Crisis() {
       <View style={CARD.base}>
         <Text style={CARD.title}>Calling from Overseas?</Text>
         <Text style={CARD.text}>
-          Dialing the U.S. country code is required. If one number doesn’t
-          connect, try another region.
+          Dialing the U.S. country code is required (+1). If one number doesn’t
+          connect, try another region. DSN 988 works from base phones.
         </Text>
 
-        <View style={{ marginTop: 12 }}>
-          <Text style={[CARD.text, { fontWeight: '700' as const }]}>
-            NORTHCOM
-          </Text>
-          <Pressable onPress={() => openTel('988')}>
-            <Text style={CARD.link}>Dial 988 then Press 1</Text>
-          </Pressable>
-        </View>
-
-        {/* ... PACOM / EUCOM / CENTCOM / AFRICOM / SOUTHCOM (unchanged) ... */}
+        {Object.entries(crisisNumbers).map(([region, entries]) => (
+          <View key={region} style={{ marginTop: 12 }}>
+            <Text style={[CARD.text, { fontWeight: '700' }]}>{region}</Text>
+            {entries.map((entry, idx) => (
+              <View key={idx} style={{ flexDirection: 'row', marginTop: 4 }}>
+                <Pressable
+                  onPress={() =>
+                    entry.type === 'tel' ? openTel(entry.number) : undefined
+                  }
+                >
+                  <Text style={CARD.link}>{entry.label}</Text>
+                </Pressable>
+                {entry.type === 'dsn' && (
+                  <Pressable
+                    style={[
+                      CARD.btn,
+                      {
+                        marginTop: 0,
+                        marginLeft: 10,
+                        paddingVertical: 6,
+                        paddingHorizontal: 12,
+                      },
+                    ]}
+                    onPress={() => copyToClipboard(entry.number)}
+                  >
+                    <Text style={[CARD.btnLabel, { fontSize: 14 }]}>
+                      Copy DSN
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+            ))}
+          </View>
+        ))}
       </View>
 
       {/* AOR Map (zoom & pan) */}
