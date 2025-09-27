@@ -62,7 +62,7 @@
     "expo-secure-store": "~14.2.4",
     "expo-status-bar": "~2.2.3",
     "firebase": "^11.10.0",
-    "react": "19.0.0",
+    "react": "19.1.1",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-image-pan-zoom": "^2.1.12",
@@ -74,7 +74,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@eslint/js": "^9.35.0",
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.1.14",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "dotenv": "^16.4.5",
