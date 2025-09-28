@@ -6,7 +6,7 @@ import reactNative from 'eslint-plugin-react-native';
 import prettier from 'eslint-plugin-prettier';
 
 export default [
-  // Ignore generated/vendor/snapshots
+  // Ignore generated/vendor/snapshots and any accidental nested repo dir
   {
     ignores: [
       'node_modules',
@@ -20,13 +20,13 @@ export default [
       'snapshot/**',
       'snapshots',
       'snapshots/**',
+      'vafmp-navigator/**',
     ],
   },
 
   js.configs.recommended,
   ...ts.configs.recommended,
 
-  // TS/React/React Native rules
   {
     files: ['**/*.{ts,tsx}'],
     plugins: {
@@ -48,6 +48,15 @@ export default [
       'react/prop-types': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+
+      // RN uses require(...) for images; allow it
+      '@typescript-eslint/no-require-imports': 'off',
+
+      // Allow intentionally-unused args/vars when prefixed with _
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 
