@@ -4,9 +4,9 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '../styles/shared';
-import { queryClient, wireAuthRefetch } from '../lib/queryClient';
-import { auth, onAuthStateChanged } from '../lib/authApi';
+
 import { auth, onAuthStateChanged, type User } from '../lib/authApi';
+import { queryClient, wireAuthRefetch } from '../lib/queryClient';
 
 function FontWarmup() {
   return <MaterialIcons name="check" size={0.001} color="transparent" />;
@@ -109,6 +109,7 @@ function TabLayout() {
 }
 
 export default function RootLayout() {
+  React.useEffect(() => wireAuthRefetch({ auth, onAuthStateChanged }), []);
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
