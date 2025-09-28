@@ -1,3 +1,4 @@
+// app/(app)/favorites.tsx
 import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -26,11 +27,9 @@ export default function Favorites() {
 
   return (
     <Background>
-      {/* tiny invisible icon so the font is surely “touched” on this screen */}
       <MaterialIcons name="check" size={0.001} color="transparent" />
-
       <View style={shared.safePad} />
-      <Text style={shared.title}>Favorites</Text>
+      <Text style={shared.titleCenter}>Favorites</Text>
 
       <FlatList<Provider>
         contentContainerStyle={shared.listContent}

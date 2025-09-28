@@ -3,32 +3,41 @@ import { StyleSheet, Platform, StatusBar } from 'react-native';
 
 export const colors = {
   // Dark theme base
-  bg: '#0b1220', // deep navy (app background)
-  card: '#111827', // near-black slate for cards (a bit higher contrast)
+  bg: '#0b1220',
+  card: '#111827',
   border: '#1f2937',
   text: '#e5e7eb',
   muted: '#9ca3af',
 
-  // Patriotic accents
-  blue: '#3b82f6', // links / info
-  red: '#ef4444', // danger / destructive
-  gold: '#facc15', // highlights (tab active, star, important actions)
+  // Accents
+  blue: '#3b82f6',
+  red: '#ef4444',
+  gold: '#facc15',
 
-  // Legacy aliases (leave these so older screens don’t explode)
+  // Legacy aliases
   green: '#22c55e',
-  amber: '#f59e0b', // kept for back-compat; prefer `gold` going forward
+  amber: '#f59e0b',
   cardBg: '#111827',
   cardBorder: '#1f2937',
 };
 
-// Top safe inset (“notch tax” — you pay it whether you like it or not)
+// Global gutter to control card/screen horizontal rhythm
+export const GUTTER = 6;
+
+// ----- Typography scale (global) --------------------------------------------
+const SCALE = 1.16;
+
+// Exported helpers so screens can stay consistent
+export const fs = (n: number) => Math.round(n * SCALE);
+export const lh = (n: number) => Math.round(fs(n) * 1.4);
+
+// Top safe inset (“notch tax”)
 const topSafe =
   Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 12 : 16;
 
 export const shared = StyleSheet.create({
   // Layout
   screen: { flex: 1, backgroundColor: colors.bg },
-  // Use this on screens wrapped by <Background> so the texture shows through
   screenOnImage: { flex: 1, backgroundColor: 'transparent' },
   safePad: { height: topSafe },
   buffer: { height: 12 },
@@ -36,75 +45,110 @@ export const shared = StyleSheet.create({
   // Typography
   title: {
     color: colors.text,
-    fontSize: 24, // bumped from 22 for readability
+    fontSize: fs(24),
+    lineHeight: lh(24),
     fontWeight: '800',
     paddingHorizontal: 16,
-    marginBottom: 8,
-    // Fun fact: if this breaks, it’s always the font size. Always.
+    marginBottom: 10,
   },
-  text: { color: colors.text, paddingHorizontal: 16, fontSize: 16 }, // slight bump
-  textMuted: { color: colors.muted, paddingHorizontal: 16, fontSize: 15 },
+  // Centered header variant per your directive
+  titleCenter: {
+    color: colors.text,
+    fontSize: fs(24),
+    lineHeight: lh(24),
+    fontWeight: '800',
+    textAlign: 'center',
+    paddingHorizontal: 0,
+    marginBottom: 10,
+  },
+  text: {
+    color: colors.text,
+    paddingHorizontal: 16,
+    fontSize: fs(16),
+    lineHeight: lh(16),
+  },
+  textMuted: {
+    color: colors.muted,
+    paddingHorizontal: 16,
+    fontSize: fs(15),
+    lineHeight: lh(15),
+  },
 
   // Common rows & pills
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
+
+  // Pill (used on Login and elsewhere)
   pill: {
     borderRadius: 999,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.border,
-    // Infinite pill radius = infinite wisdom
+    paddingVertical: 8,
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 
-  // Cards / lists
+  // Full-bleed utility (for banners)
+  fullBleed: {
+    marginHorizontal: 0,
+    borderRadius: 0,
+  },
+
+  // Cards / lists (width is controlled by GUTTER)
   card: {
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
-    padding: 14, // tiny bump
+    padding: 16,
     borderRadius: 12,
-    marginHorizontal: 16,
-    marginTop: 8, // scientifically fixes 90% of spacing bugs
+    marginHorizontal: GUTTER, // ⬅️ single source of truth for card width
+    marginTop: 10,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
     justifyContent: 'space-between',
   },
   listContent: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 16,
-    gap: 12,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 18,
+    gap: 14,
   },
 
-  // Badges (billing)
+  // Badges
   badge: {
     borderRadius: 999,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     backgroundColor: colors.border,
   },
   badgeText: {
     color: colors.text,
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: fs(12),
+    lineHeight: lh(12),
     letterSpacing: 0.3,
   },
-  badgeDirect: { backgroundColor: '#065f46' }, // green-800 (direct = straight to business)
-  badgeReimb: { backgroundColor: '#7f1d1d' }, // red-900 (reimbursement = red tape 😉)
+  badgeDirect: { backgroundColor: '#065f46' },
+  badgeReimb: { backgroundColor: '#7f1d1d' },
 
-  // Action row / buttons (call, email, map)
-  actionRow: { flexDirection: 'row', gap: 12, marginTop: 12 },
+  // Action row / buttons
+  actionRow: { flexDirection: 'row', gap: 12, marginTop: 14 },
   actionBtn: {
     backgroundColor: colors.bg,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 12,
+    padding: 14,
     borderRadius: 10,
-    // Press me, I dare you
   },
 
   // Empty & helpers
-  empty: { color: colors.muted, paddingHorizontal: 16, paddingVertical: 8 }, // “nothing to see here”
+  empty: {
+    color: colors.muted,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: fs(15),
+    lineHeight: lh(15),
+  },
 });

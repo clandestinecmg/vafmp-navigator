@@ -10,18 +10,18 @@ import {
   Platform,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { colors } from '../styles/shared';
+import { colors, fs, GUTTER } from '../styles/shared';
 
 export type Option = { label: string; value: string };
 
 type Props = {
-  label: string; // visible label on the closed field ("Country", "City", etc.)
-  value: string | null; // current selected value
-  options: Option[]; // choices
+  label: string;
+  value: string | null;
+  options: Option[];
   onChange: (v: string | null) => void;
-  placeholder?: string; // text when value === null (defaults to label)
+  placeholder?: string;
   disabled?: boolean;
-  icon?: keyof typeof MaterialIcons.glyphMap; // optional leading icon name
+  icon?: keyof typeof MaterialIcons.glyphMap;
 };
 
 export default function Select({
@@ -38,6 +38,7 @@ export default function Select({
 
   return (
     <>
+      {/* Closed field — stretches to fill parent/card width */}
       <Pressable
         disabled={disabled}
         onPress={() => setOpen(true)}
@@ -50,7 +51,7 @@ export default function Select({
         {icon ? (
           <MaterialIcons
             name={icon}
-            size={18}
+            size={fs(18)}
             color={colors.muted}
             style={{ marginRight: 6 }}
           />
@@ -63,12 +64,13 @@ export default function Select({
         </Text>
         <MaterialIcons
           name={open ? 'expand-less' : 'expand-more'}
-          size={20}
+          size={fs(20)}
           color={colors.muted}
           style={{ marginLeft: 6 }}
         />
       </Pressable>
 
+      {/* Modal panel */}
       <Modal
         visible={open}
         animationType="fade"
@@ -80,13 +82,14 @@ export default function Select({
           <View style={styles.panelHeader}>
             <Text style={styles.panelTitle}>{label}</Text>
             <Pressable onPress={() => setOpen(false)} hitSlop={8}>
-              <MaterialIcons name="close" size={22} color="#111" />
+              <MaterialIcons name="close" size={fs(20)} color="#111" />
             </Pressable>
           </View>
 
           <ScrollView
             style={{ maxHeight: 360 }}
             contentContainerStyle={{ paddingVertical: 4 }}
+            keyboardShouldPersistTaps="handled"
           >
             {/* “All” / Clear */}
             <Pressable
@@ -126,7 +129,7 @@ export default function Select({
                     {o.label}
                   </Text>
                   {active ? (
-                    <MaterialIcons name="check" size={18} color="#111" />
+                    <MaterialIcons name="check" size={fs(18)} color="#111" />
                   ) : null}
                 </Pressable>
               );
@@ -139,6 +142,7 @@ export default function Select({
 }
 
 const styles = StyleSheet.create({
+  // Closed field fills parent/card width
   field: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -147,29 +151,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 10,
     paddingHorizontal: 10,
-    height: 44,
-    minWidth: 150,
-    flexGrow: 1,
+    height: 46,
+    width: '100%',
+    alignSelf: 'stretch',
   },
   fieldDisabled: { opacity: 0.5 },
   fieldPressed: { opacity: 0.85 },
-  fieldText: { color: colors.text, flex: 1, fontSize: 14, fontWeight: '600' },
+  fieldText: {
+    color: colors.text,
+    flex: 1,
+    fontSize: fs(16),
+    fontWeight: '600',
+  },
   placeholder: {
     color: colors.muted,
     fontWeight: Platform.OS === 'ios' ? '600' : '700',
   },
 
+  // Modal chrome
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   panel: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: GUTTER, // align with card margin
+    right: GUTTER, // align with card margin
     top: '20%',
     borderRadius: 12,
-    backgroundColor: '#fff', // ← white panel
+    backgroundColor: '#fff',
     padding: 12,
     shadowColor: '#000',
     shadowOpacity: 0.15,
@@ -186,8 +196,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
     marginBottom: 6,
   },
-  panelTitle: { fontSize: 16, fontWeight: '800', color: '#111' },
+  panelTitle: { fontSize: fs(16), fontWeight: '800', color: '#111' },
 
+  // Options
   option: {
     paddingVertical: 12,
     paddingHorizontal: 8,
@@ -204,6 +215,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cfe1ff',
   },
-  optionText: { color: '#111', fontSize: 14, fontWeight: '700' }, // ← black text
+  optionText: { color: '#111', fontSize: fs(16), fontWeight: '700' },
   optionTextActive: { color: '#0b3ea8' },
 });

@@ -1,16 +1,15 @@
-// app/(app)/resources.tsx
 import * as React from 'react';
 import {
   View,
   Text,
   Linking,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
   Alert,
+  ScrollView,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { shared, colors } from '../../styles/shared';
+import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
 import {
   VAFMP_LINKS,
   VAFMP_CONTACT,
@@ -34,9 +33,13 @@ export default function Resources() {
 
   return (
     <Background>
-      <View style={shared.screenOnImage}>
+      <ScrollView
+        style={shared.screenOnImage}
+        contentContainerStyle={{ padding: GUTTER, paddingBottom: 80 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={shared.safePad} />
-        <Text style={shared.title}>Resources</Text>
+        <Text style={shared.titleCenter}>Resources</Text>
 
         {/* VAFMP Links */}
         <View style={shared.card}>
@@ -46,10 +49,12 @@ export default function Resources() {
               key={link.label}
               style={styles.row}
               onPress={() => openUrl(link.url)}
+              accessibilityRole="link"
+              accessibilityLabel={link.label}
             >
               <MaterialIcons
                 name="open-in-new"
-                size={18}
+                size={fs(18)}
                 color={colors.gold}
                 style={styles.icon}
               />
@@ -61,22 +66,31 @@ export default function Resources() {
         {/* Contact */}
         <View style={shared.card}>
           <Text style={styles.sectionTitle}>Contact</Text>
-          <TouchableOpacity style={styles.row} onPress={sendEmail}>
+
+          <TouchableOpacity
+            style={styles.row}
+            onPress={sendEmail}
+            accessibilityRole="button"
+            accessibilityLabel={`Email VAFMP at ${VAFMP_CONTACT.email}`}
+          >
             <MaterialIcons
               name="email"
-              size={18}
+              size={fs(18)}
               color={colors.blue}
               style={styles.icon}
             />
             <Text style={styles.link}>Email VAFMP ({VAFMP_CONTACT.email})</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.row}
             onPress={() => callNumber(VAFMP_CONTACT.mainLine.number)}
+            accessibilityRole="button"
+            accessibilityLabel={`Call FMP main line ${VAFMP_CONTACT.mainLine.number}`}
           >
             <MaterialIcons
               name="call"
-              size={18}
+              size={fs(18)}
               color={colors.green}
               style={styles.icon}
             />
@@ -84,6 +98,7 @@ export default function Resources() {
               FMP Main Line: {VAFMP_CONTACT.mainLine.number}
             </Text>
           </TouchableOpacity>
+
           <Text style={styles.muted}>
             TTY: {VAFMP_CONTACT.mainLine.tty} • {VAFMP_CONTACT.mainLine.hours}
           </Text>
@@ -92,43 +107,55 @@ export default function Resources() {
         {/* Toll-Free */}
         <View style={shared.card}>
           <Text style={styles.sectionTitle}>Toll-Free Numbers</Text>
-          <FlatList
-            data={VAFMP_TOLL_FREE}
-            keyExtractor={(item) => item.country}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.row}
-                onPress={() => callNumber(item.phone)}
-              >
-                <MaterialIcons
-                  name="phone"
-                  size={18}
-                  color={colors.green}
-                  style={styles.icon}
-                />
-                <Text style={styles.link}>
-                  {item.country}: {item.phone}
-                </Text>
-              </TouchableOpacity>
-            )}
-            ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
-          />
+
+          {VAFMP_TOLL_FREE.map((item) => (
+            <TouchableOpacity
+              key={item.country}
+              style={styles.row}
+              onPress={() => callNumber(item.phone)}
+              accessibilityRole="button"
+              accessibilityLabel={`Call ${item.country} toll-free number ${item.phone}`}
+            >
+              <MaterialIcons
+                name="phone"
+                size={fs(18)}
+                color={colors.green}
+                style={styles.icon}
+              />
+              <Text style={styles.link}>
+                {item.country}: {item.phone}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      </View>
+      </ScrollView>
     </Background>
   );
 }
 
 const styles = StyleSheet.create({
   sectionTitle: {
-    color: colors.text,
+    ...shared.text,
     fontWeight: '800',
-    fontSize: 16,
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: fs(18),
+    lineHeight: lh(18),
+    marginBottom: 10,
   },
-  row: { flexDirection: 'row', alignItems: 'center', marginVertical: 4 },
-  icon: { marginRight: 8 },
-  link: { color: colors.gold, fontWeight: '700', flexShrink: 1 },
-  muted: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  row: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
+  icon: { marginRight: 10 },
+  link: {
+    ...shared.text,
+    color: colors.gold,
+    fontWeight: '700',
+    fontSize: fs(16),
+    lineHeight: lh(16),
+    flexShrink: 1,
+  },
+  muted: {
+    ...shared.text,
+    color: colors.muted,
+    fontSize: fs(14),
+    lineHeight: lh(14),
+    marginTop: 4,
+  },
 });
