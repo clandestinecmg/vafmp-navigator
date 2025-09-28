@@ -13,3 +13,8 @@ snapshots/
 snapshots/
 snapshots/
 build-*.apk
+build-*.apk
+*.aab
+*.ipa
+*.apk
+snapshots/
