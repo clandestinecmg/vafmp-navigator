@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '../styles/shared';
+import { queryClient, wireAuthRefetch } from '../lib/queryClient';
+import { auth, onAuthStateChanged } from '../lib/authApi';
 import { auth, onAuthStateChanged, type User } from '../lib/authApi';
-
-const queryClient = new QueryClient();
 
 function FontWarmup() {
   return <MaterialIcons name="check" size={0.001} color="transparent" />;
