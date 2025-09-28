@@ -1,63 +1,24 @@
-// eslint.config.mjs — ESLint v9 flat config
-import js from '@eslint/js';
-import ts from 'typescript-eslint';
+import tseslint from 'typescript-eslint';
+import react from 'eslint-plugin-react';
+import prettier from 'eslint-plugin-prettier';
 
-export default [
-  // Ignore junk
+export default tseslint.config(
+  { ignores: ["node_modules", "snapshots", "snapshots/**", "snapshot", "snapshot/**"] },
   {
-    ignores: [
-      'dist',
-      'build',
-      'node_modules',
-      'logs',
-      'snapshot',
-      '.expo',
-      '.expo-shared',
-      'ios/Pods/**',
-      'android/**',
+    files: ["**/*.ts", "**/*.tsx"],
+    extends: [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended"
     ],
-  },
-
-  js.configs.recommended,
-  ...ts.configs.recommended,
-
-  // TypeScript / React Native source
-  {
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: ts.parser,
-      parserOptions: { project: './tsconfig.json' },
+    parser: "@typescript-eslint/parser",
+    parserOptions: {
+      project: "./tsconfig.json",
+      tsconfigRootDir: import.meta.dirname
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-      // RN uses require(...) for images; allow it
-      '@typescript-eslint/no-require-imports': 'off',
-    },
-  },
-
-  // Plain JS (e.g., babel.config.js)
-  {
-    files: ['**/*.js'],
-    languageOptions: {
-      // Permit CommonJS-style globals used by Babel config
-      globals: {
-        module: 'readonly',
-        require: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-      },
-    },
-  },
-
-  // Declaration files — relax strictness
-  {
-    files: ['**/*.d.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
-  },
-];
+      "prettier/prettier": "error"
+    }
+  }
+);
