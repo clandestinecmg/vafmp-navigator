@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { Tabs, router } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { colors } from '../styles/shared';
+import { auth, onAuthStateChanged, type User } from '../lib/authApi';
 
 const queryClient = new QueryClient();
 
@@ -15,8 +13,22 @@ function FontWarmup() {
 }
 
 function TabLayout() {
-  const insets = useSafeAreaInsets();
-  const isAuthed = false;
+  const router = useRouter();
+  const [user, setUser] = React.useState<User | null>(auth.currentUser);
+
+  React.useEffect(() => {
+    const unsub = onAuthStateChanged(auth, setUser);
+    return () => unsub();
+  }, []);
+
+  const guard = (next: 'providers' | 'favorites') => ({
+    tabPress: (e: { preventDefault: () => void }) => {
+      if (!user) {
+        e.preventDefault();
+        router.push({ pathname: '/(auth)/login', params: { next } });
+      }
+    },
+  });
 
   return (
     <Tabs
@@ -27,9 +39,8 @@ function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.bg,
           borderTopColor: colors.border,
-          height: 56 + insets.bottom,
+          height: 60,
           paddingTop: 6,
-          paddingBottom: insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: '700' },
       }}
@@ -45,36 +56,22 @@ function TabLayout() {
       />
       <Tabs.Screen
         name="(app)/providers"
+        listeners={guard('providers')}
         options={{
           title: 'Providers',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="local-hospital" size={size} color={color} />
           ),
         }}
-        listeners={{
-          tabPress: (e) => {
-            if (!isAuthed) {
-              e.preventDefault();
-              router.push('/(auth)/login');
-            }
-          },
-        }}
       />
       <Tabs.Screen
         name="(app)/favorites"
+        listeners={guard('favorites')}
         options={{
           title: 'Favorites',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="star" size={size} color={color} />
           ),
-        }}
-        listeners={{
-          tabPress: (e) => {
-            if (!isAuthed) {
-              e.preventDefault();
-              router.push('/(auth)/login');
-            }
-          },
         }}
       />
       <Tabs.Screen
