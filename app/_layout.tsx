@@ -7,7 +7,6 @@ import { colors } from '../styles/shared';
 
 const queryClient = new QueryClient();
 
-// Renders one invisible icon so the font is surely loaded
 function FontWarmup() {
   return <MaterialIcons name="check" size={0.001} color="transparent" />;
 }
@@ -19,15 +18,18 @@ export default function RootLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: colors.gold, // was amber
+          tabBarActiveTintColor: colors.gold,
           tabBarInactiveTintColor: colors.muted,
           tabBarStyle: {
             backgroundColor: colors.bg,
             borderTopColor: colors.border,
+            height: 60,
+            paddingTop: 6,
           },
-          tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+          tabBarLabelStyle: { fontSize: 12, fontWeight: '700' },
         }}
       >
+        {/* main tabs */}
         <Tabs.Screen
           name="(app)/home"
           options={{
@@ -65,6 +67,15 @@ export default function RootLayout() {
           }}
         />
         <Tabs.Screen
+          name="(app)/profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="badge" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="(app)/crisis"
           options={{
             title: 'Crisis',
@@ -77,15 +88,10 @@ export default function RootLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="(auth)/login"
-          options={{
-            title: 'Auth',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="login" size={size} color={color} />
-            ),
-          }}
-        />
+        {/* hide non-tab routes so they don't appear in the bar */}
+        <Tabs.Screen name="index" options={{ href: null }} />
+        <Tabs.Screen name="error" options={{ href: null }} />
+        <Tabs.Screen name="(auth)/login" options={{ href: null }} />
       </Tabs>
     </QueryClientProvider>
   );
