@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { buildGoogleMapsUrl, openInMaps } from '../lib/utils.maps';
-import { colors } from '../styles/shared';
+import { colors, fs } from '../styles/shared';
 
 export type ProviderCardItem = {
   id: string;
@@ -90,7 +90,6 @@ export default function ProviderCard({
       <View style={styles.rowBetween}>
         <Text style={styles.name}>{item.name}</Text>
 
-        {/* ⭐ Top-right star toggle */}
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
@@ -190,13 +189,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontSize: 16,
+    fontSize: fs(16),
     fontWeight: '700',
     flexShrink: 1,
     paddingRight: 8,
     color: colors.text,
   },
-  sub: { marginTop: 4, color: colors.muted },
+  // Match Resources body size
+  sub: { marginTop: 4, color: colors.muted, fontSize: fs(16) },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   pill: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
   pillPressed: { opacity: 0.9 },
   pillRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  pillText: { fontWeight: '800' },
+  pillText: { fontWeight: '800', fontSize: fs(14) },
 
   badgeRow: { marginTop: 10, flexDirection: 'row' },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: fs(12),
     letterSpacing: 0.3,
   },
 });

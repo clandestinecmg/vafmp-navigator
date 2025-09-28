@@ -1,69 +1,48 @@
+// eslint.config.mjs — ESLint v9 flat config
 import js from '@eslint/js';
 import ts from 'typescript-eslint';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactNative from 'eslint-plugin-react-native';
-import prettier from 'eslint-plugin-prettier';
 
 export default [
-  // Ignore generated/vendor/snapshots and any accidental nested repo dir
+  // Ignore junk
   {
     ignores: [
-      'node_modules',
       'dist',
       'build',
+      'node_modules',
+      'logs',
+      'snapshot',
       '.expo',
       '.expo-shared',
-      'android',
-      'ios/Pods',
-      'snapshot',
-      'snapshot/**',
-      'snapshots',
-      'snapshots/**',
-      'vafmp-navigator/**',
+      'ios/Pods/**',
+      'android/**',
     ],
   },
 
   js.configs.recommended,
   ...ts.configs.recommended,
 
+  // TypeScript / React Native source
   {
     files: ['**/*.{ts,tsx}'],
-    plugins: {
-      react,
-      'react-hooks': reactHooks,
-      'react-native': reactNative,
-      prettier,
-    },
     languageOptions: {
       parser: ts.parser,
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: import.meta.dirname,
-      },
+      parserOptions: { project: './tsconfig.json' },
     },
     rules: {
-      'prettier/prettier': 'error',
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-
-      // RN uses require(...) for images; allow it
-      '@typescript-eslint/no-require-imports': 'off',
-
-      // Allow intentionally-unused args/vars when prefixed with _
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // RN uses require(...) for images; allow it
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 
-  // Plain JS (configs/scripts)
+  // Plain JS (e.g., babel.config.js)
   {
     files: ['**/*.js'],
     languageOptions: {
+      // Permit CommonJS-style globals used by Babel config
       globals: {
         module: 'readonly',
         require: 'readonly',

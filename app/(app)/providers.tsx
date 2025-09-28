@@ -1,3 +1,4 @@
+// app/(app)/providers.tsx
 import * as React from 'react';
 import { View, Text, FlatList, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -14,14 +15,12 @@ import { useFavoriteIds, useToggleFavorite } from '../../lib/favorites';
 
 type LegacyBilling = { billingType?: string | null };
 
-// Helper to read billing from current or legacy field (no `any`)
 function getBilling(p: Provider): string | null {
   const withLegacy = p as unknown as Provider & LegacyBilling;
   return withLegacy.billing ?? withLegacy.billingType ?? null;
 }
 
 export default function Providers() {
-  // Data
   const {
     data: providers = [],
     isLoading,
@@ -31,12 +30,10 @@ export default function Providers() {
     queryFn: getAllProviders,
   });
 
-  // Auth + favorites
   const uid = auth.currentUser?.uid ?? null;
   const { data: favIds = [] } = useFavoriteIds(uid);
   const toggleFav = useToggleFavorite(uid);
 
-  // Filters
   const [country, setCountry] = React.useState<string | null>(null);
   const [city, setCity] = React.useState<string | null>(null);
   const [billing, setBilling] = React.useState<string | null>(null);
@@ -75,7 +72,6 @@ export default function Providers() {
     return true;
   });
 
-  // Toggle favorite handler (guards sign-in)
   const onToggleFavorite = (id: string, next: boolean) => {
     if (!uid) {
       Alert.alert('Sign in required', 'Please sign in to save favorites.');
@@ -86,15 +82,13 @@ export default function Providers() {
 
   return (
     <Background>
-      {/* tiny invisible icon so the font is surely “touched” on this screen */}
       <MaterialIcons name="check" size={0.001} color="transparent" />
-
       <View style={shared.safePad} />
-      <Text style={shared.title}>Providers</Text>
+      <Text style={shared.titleCenter}>Providers</Text>
 
-      {/* Filters */}
+      {/* Filters — full-width fields, unified card margins */}
       <View style={[shared.card, { gap: 10 }]}>
-        <View style={shared.row}>
+        <View style={{ width: '100%' }}>
           <Select
             label="Country"
             icon="public"
@@ -108,7 +102,7 @@ export default function Providers() {
           />
         </View>
 
-        <View style={shared.row}>
+        <View style={{ width: '100%' }}>
           <Select
             label="City"
             icon="location-city"
@@ -120,7 +114,7 @@ export default function Providers() {
           />
         </View>
 
-        <View style={shared.row}>
+        <View style={{ width: '100%' }}>
           <Select
             label="Billing"
             icon="payments"

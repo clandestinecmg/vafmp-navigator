@@ -11,20 +11,14 @@
     "resolveJsonModule": true,
     "allowJs": false,
     "checkJs": false,
+
+    /* Make sure our local shims are picked up */
     "typeRoots": ["./types", "./node_modules/@types"],
+
+    /* Interop niceties */
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
   "include": ["**/*.ts", "**/*.tsx", "types/**/*.d.ts"],
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "snapshots",
-    "snapshots/**",
-    "**/snapshots/**",
-    "snapshot",
-    "snapshot/**",
-    "**/snapshot/**"
-  ]
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js"]
 }
