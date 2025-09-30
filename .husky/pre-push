@@ -1,6 +1,1 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-echo "🧪 pre-push: format check, lint, typecheck…"
-npm run check:all || exit 1
-echo "🚀 pre-push passed."
+echo "🧪 pre-push: format check, lint, typecheck…"; npm run check:all || exit 1; echo "🚀 pre-push passed."

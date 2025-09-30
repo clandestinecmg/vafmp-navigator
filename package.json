@@ -25,12 +25,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run lint && tsc --noEmit",
+    "fix:husky": "rm -rf .husky && mkdir -p .husky && echo 'echo \"🔍 pre-commit: lint-staged…\"; npx --no-install lint-staged || exit 1; echo \"✅ pre-commit passed.\"' > .husky/pre-commit && echo 'echo \"🧪 pre-push: format check, lint, typecheck…\"; npm run check:all || exit 1; echo \"🚀 pre-push passed.\"' > .husky/pre-push && chmod +x .husky/pre-commit .husky/pre-push",
+    "format:write": "npm run format",
     "prepare": "husky",
     "check:hooks": "scripts/check-hooks.sh",
     "postinstall": "npm run check:hooks",
     "fix:prettier": "scripts/fix-prettier.sh",
     "fix:lint": "scripts/fix-lint.sh",
-    "fix:all": "npm run format && npm run lint:fix && npx tsc --noEmit",
+    "fix:all": "npm run format:write && npm run lint:fix && npx tsc --noEmit",
+    "fix:crisis": "prettier --write \"app/(app)/crisis.tsx\" && tsc --noEmit",
     "ci:status": "gh run list --limit 5",
     "ci:rerun": "gh run rerun $(gh run list --limit 1 --json databaseId --jq '.[0].databaseId')",
     "pr:create": "gh pr create --fill --base main",
@@ -76,7 +79,8 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.11.1",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.8",
+    "expo-document-picker": "~13.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
