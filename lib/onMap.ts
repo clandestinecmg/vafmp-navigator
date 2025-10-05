@@ -1,3 +1,4 @@
+//lib/onMap.ts
 import { Alert, Linking, Platform } from 'react-native';
 
 /**

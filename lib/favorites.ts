@@ -1,3 +1,4 @@
+//lib/favorites.ts
 import {
   doc,
   setDoc,

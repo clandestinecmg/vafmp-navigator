@@ -1,0 +1,47 @@
+rules_version = '2';
+
+function isSignedIn() {
+  return request.auth != null;
+}
+
+function isOwner(userId) {
+  return isSignedIn() && request.auth.uid == userId;
+}
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public read-only providers listing
+    match /providers/{providerId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Public read-only area
+    match /public/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User space
+    match /users/{userId} {
+      // The user doc itself
+      allow read, write: if isOwner(userId);
+
+      // ✅ Any nested subcollections (e.g., /users/{uid}/debug/*, /users/{uid}/attachments/*, etc.)
+      match /{subpath=**} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // (Optional explicit example; now covered by {subpath=**})
+      match /favorites/{favId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

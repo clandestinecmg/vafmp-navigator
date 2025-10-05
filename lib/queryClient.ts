@@ -1,10 +1,12 @@
+// lib/queryClient.ts
 import { QueryClient } from '@tanstack/react-query';
 
 export const queryClient = new QueryClient();
 
+/** Optional helper: invalidate all queries on auth state changes */
 export function wireAuthRefetch(opts: {
   auth: unknown;
-  onAuthStateChanged: (a: unknown, cb: () => void) => () => void;
+  onAuthStateChanged: (auth: unknown, cb: () => void) => () => void;
 }) {
   const { auth, onAuthStateChanged } = opts;
   return onAuthStateChanged(auth, () => {

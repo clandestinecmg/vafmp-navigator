@@ -1,154 +1,181 @@
-// styles/shared.ts
-import { StyleSheet, Platform, StatusBar } from 'react-native';
+//styles/shared.ts
+
+import { StyleSheet, Platform } from 'react-native';
+
+/** ------- GLOBAL TUNING KNOBS ------- */
+export const FONT_SCALE = 1.12; // ⬅️ global +12% text bump
+export const SPACING_SCALE = 1.0; // keep spacing stable
+export const MAX_WIDTH = 820;
+/** ----------------------------------- */
+
+export const GUTTER = Math.round(6 * SPACING_SCALE);
 
 export const colors = {
-  // Dark theme base
-  bg: '#0b1220',
-  card: '#111827',
-  border: '#1f2937',
-  text: '#e5e7eb',
-  muted: '#9ca3af',
-
-  // Accents
-  blue: '#3b82f6',
+  bg: '#0b0b10',
+  text: '#f8fafc',
+  muted: '#94a3b8',
+  border: 'rgba(255,255,255,0.10)',
+  card: 'rgba(2,6,23,0.70)',
+  gold: '#fbbf24',
+  blue: '#60a5fa',
+  green: '#34d399',
   red: '#ef4444',
-  gold: '#facc15',
-
-  // Legacy aliases
-  green: '#22c55e',
-  amber: '#f59e0b',
-  cardBg: '#111827',
-  cardBorder: '#1f2937',
 };
 
-// Global gutter to control card/screen horizontal rhythm
-export const GUTTER = 6;
+// font-size helper
+export function fs(px: number): number {
+  const val = px * FONT_SCALE;
+  return Platform.OS === 'ios' ? val : Math.round(val);
+}
 
-// ----- Typography scale (global) --------------------------------------------
-const SCALE = 1.16;
-
-// Exported helpers so screens can stay consistent
-export const fs = (n: number) => Math.round(n * SCALE);
-export const lh = (n: number) => Math.round(fs(n) * 1.4);
-
-// Top safe inset (“notch tax”)
-const topSafe =
-  Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 12 : 16;
+// line-height helper
+export function lh(px: number): number {
+  const base = px * FONT_SCALE;
+  const val = base * 1.25;
+  return Platform.OS === 'ios' ? val : Math.round(val);
+}
 
 export const shared = StyleSheet.create({
-  // Layout
+  page: { flex: 1 },
+
+  wrap: {
+    width: '100%',
+    maxWidth: MAX_WIDTH,
+    alignSelf: 'center',
+    paddingHorizontal: GUTTER,
+  },
+
   screen: { flex: 1, backgroundColor: colors.bg },
   screenOnImage: { flex: 1, backgroundColor: 'transparent' },
-  safePad: { height: topSafe },
-  buffer: { height: 12 },
 
-  // Typography
-  title: {
-    color: colors.text,
-    fontSize: fs(24),
-    lineHeight: lh(24),
-    fontWeight: '800',
-    paddingHorizontal: 16,
-    marginBottom: 10,
-  },
-  // Centered header variant per your directive
-  titleCenter: {
-    color: colors.text,
-    fontSize: fs(24),
-    lineHeight: lh(24),
-    fontWeight: '800',
-    textAlign: 'center',
-    paddingHorizontal: 0,
-    marginBottom: 10,
-  },
-  text: {
-    color: colors.text,
-    paddingHorizontal: 16,
-    fontSize: fs(16),
-    lineHeight: lh(16),
-  },
-  textMuted: {
-    color: colors.muted,
-    paddingHorizontal: 16,
-    fontSize: fs(15),
-    lineHeight: lh(15),
-  },
+  fullBleed: { width: '100%', alignSelf: 'center' },
 
-  // Common rows & pills
-  row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
-
-  // Pill (used on Login and elsewhere)
   pill: {
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  // Full-bleed utility (for banners)
-  fullBleed: {
-    marginHorizontal: 0,
-    borderRadius: 0,
-  },
-
-  // Cards / lists (width is controlled by GUTTER)
-  card: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingVertical: Math.round(12 * SPACING_SCALE),
+    paddingHorizontal: Math.round(16 * SPACING_SCALE),
+    borderRadius: Math.round(999 * SPACING_SCALE),
     backgroundColor: colors.card,
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: GUTTER, // ⬅️ single source of truth for card width
-    marginTop: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  cardHeader: {
+
+  safePad: { height: Math.round(30 * SPACING_SCALE) },
+
+  /** ----- Titles & Headers ----- */
+  title: {
+    fontSize: fs(26),
+    fontWeight: '800',
+    color: colors.gold,
+    marginBottom: Math.round(12 * SPACING_SCALE),
+  },
+  titleCenter: {
+    fontSize: fs(26),
+    fontWeight: '800',
+    color: colors.gold,
+    marginBottom: Math.round(12 * SPACING_SCALE),
+    textAlign: 'center',
+  },
+  sectionHeader: {
+    fontSize: fs(18),
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: Math.round(8 * SPACING_SCALE),
+  },
+  sectionHeaderCenter: {
+    fontSize: fs(18),
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: Math.round(8 * SPACING_SCALE),
+    textAlign: 'center',
+  },
+
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    justifyContent: 'space-between',
-  },
-  listContent: {
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 18,
-    gap: 14,
+    gap: Math.round(8 * SPACING_SCALE),
   },
 
-  // Badges
-  badge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: colors.border,
-  },
-  badgeText: {
-    color: colors.text,
-    fontWeight: '700',
-    fontSize: fs(12),
-    lineHeight: lh(12),
-    letterSpacing: 0.3,
-  },
-  badgeDirect: { backgroundColor: '#065f46' },
-  badgeReimb: { backgroundColor: '#7f1d1d' },
-
-  // Action row / buttons
-  actionRow: { flexDirection: 'row', gap: 12, marginTop: 14 },
-  actionBtn: {
-    backgroundColor: colors.bg,
+  /** ----- Cards (block style spacing baked in) ----- */
+  card: {
+    width: '100%',
+    padding: Math.round(16 * SPACING_SCALE),
+    borderRadius: Math.round(12 * SPACING_SCALE),
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: 14,
-    borderRadius: 10,
+    marginBottom: Math.round(16 * SPACING_SCALE),
   },
 
-  // Empty & helpers
-  empty: {
-    color: colors.muted,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: fs(15),
-    lineHeight: lh(15),
+  cardUnified: {
+    width: '100%',
+    maxWidth: MAX_WIDTH,
+    alignSelf: 'center',
+    padding: Math.round(16 * SPACING_SCALE),
+    borderRadius: Math.round(12 * SPACING_SCALE),
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: Math.round(16 * SPACING_SCALE),
   },
+
+  /** ----- Typography ----- */
+  text: { color: colors.text, fontSize: fs(14) },
+  textMuted: { color: colors.muted, fontSize: fs(14) },
+
+  textSm: { color: colors.text, fontSize: fs(14), lineHeight: lh(18) },
+  textMd: { color: colors.text, fontSize: fs(16), lineHeight: lh(20) },
+  textLg: { color: colors.text, fontSize: fs(18), lineHeight: lh(22) },
+  textXl: {
+    color: colors.text,
+    fontSize: fs(24),
+    lineHeight: lh(28),
+    fontWeight: '700',
+  },
+
+  /** ----- Buttons ----- */
+  btn: {
+    paddingVertical: Math.round(12 * SPACING_SCALE),
+    paddingHorizontal: Math.round(16 * SPACING_SCALE),
+    borderRadius: Math.round(12 * SPACING_SCALE),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  btnPrimary: { backgroundColor: colors.blue },
+  btnDanger: { backgroundColor: colors.red },
+  btnLabel: {
+    color: '#fff',
+    fontSize: fs(18), // consistent with textLg scale
+    lineHeight: lh(22), // matches shared.textLg rhythm
+    fontWeight: '700', // heavier for clarity
+    textAlign: 'center',
+  },
+
+  /** ----- Lists ----- */
+  listContent: {
+    paddingHorizontal: GUTTER,
+    paddingBottom: Math.round(40 * SPACING_SCALE),
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: MAX_WIDTH,
+    gap: Math.round(16 * SPACING_SCALE),
+  },
+
+  scrollContent: {
+    paddingHorizontal: GUTTER,
+    paddingBottom: Math.round(40 * SPACING_SCALE),
+    width: '100%',
+    maxWidth: MAX_WIDTH,
+    alignSelf: 'center',
+  },
+
+  empty: {
+    textAlign: 'center',
+    color: colors.muted,
+    fontSize: fs(14),
+    marginTop: Math.round(18 * SPACING_SCALE),
+  },
+
+  bottomSpacer: { height: Math.round(20 * SPACING_SCALE) },
 });

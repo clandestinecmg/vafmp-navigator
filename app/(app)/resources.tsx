@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
+import { shared, colors, fs, GUTTER } from '../../styles/shared';
 import {
   VAFMP_LINKS,
   VAFMP_CONTACT,
@@ -34,33 +34,40 @@ export default function Resources() {
   return (
     <Background>
       <ScrollView
-        style={shared.screenOnImage}
-        contentContainerStyle={{ padding: GUTTER, paddingBottom: 80 }}
+        style={shared.page}
+        contentContainerStyle={[
+          shared.wrap,
+          { paddingTop: GUTTER, paddingBottom: 40 },
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={shared.safePad} />
         <Text style={shared.titleCenter}>Resources</Text>
 
-        {/* VAFMP Links */}
+        {/* VAFMP */}
         <View style={shared.card}>
           <Text style={styles.sectionTitle}>VAFMP</Text>
-          {Object.values(VAFMP_LINKS).map((link) => (
-            <TouchableOpacity
-              key={link.label}
-              style={styles.row}
-              onPress={() => openUrl(link.url)}
-              accessibilityRole="link"
-              accessibilityLabel={link.label}
-            >
-              <MaterialIcons
-                name="open-in-new"
-                size={fs(18)}
-                color={colors.gold}
-                style={styles.icon}
-              />
-              <Text style={styles.link}>{link.label}</Text>
-            </TouchableOpacity>
-          ))}
+          {Object.values(VAFMP_LINKS).map((link) => {
+            // Drop the redundant "VAFMP: " prefix in labels
+            const niceLabel = link.label.replace(/^VAFMP:\s*/i, '');
+            return (
+              <TouchableOpacity
+                key={link.label}
+                style={styles.row}
+                onPress={() => openUrl(link.url)}
+                accessibilityRole="link"
+                accessibilityLabel={niceLabel}
+              >
+                <MaterialIcons
+                  name="public"
+                  size={fs(18)}
+                  color={colors.gold}
+                  style={styles.icon}
+                />
+                <Text style={styles.link}>{niceLabel}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Contact */}
@@ -133,13 +140,18 @@ export default function Resources() {
   );
 }
 
+// simple helper for line height
+const lh = (px: number) => Math.round(fs(px) * 1.3);
+
 const styles = StyleSheet.create({
   sectionTitle: {
     ...shared.text,
     fontWeight: '800',
-    fontSize: fs(18),
-    lineHeight: lh(18),
+    fontSize: fs(20), // keep subheaders strong
+    lineHeight: lh(20),
     marginBottom: 10,
+    textAlign: 'center',
+    color: colors.text,
   },
   row: { flexDirection: 'row', alignItems: 'center', marginVertical: 6 },
   icon: { marginRight: 10 },
@@ -147,15 +159,16 @@ const styles = StyleSheet.create({
     ...shared.text,
     color: colors.gold,
     fontWeight: '700',
-    fontSize: fs(16),
-    lineHeight: lh(16),
+    fontSize: fs(18), // bumped inside-block text
+    lineHeight: lh(18),
     flexShrink: 1,
   },
   muted: {
     ...shared.text,
     color: colors.muted,
-    fontSize: fs(14),
-    lineHeight: lh(14),
+    fontSize: fs(16),
+    lineHeight: lh(16),
     marginTop: 4,
+    textAlign: 'center',
   },
 });

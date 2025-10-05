@@ -10,7 +10,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   orientation: 'portrait',
   userInterfaceStyle: 'dark',
-  scheme: 'vafmp', // ✅ deep link scheme
+  scheme: 'vafmp',
   icon: './assets/icon.png',
   splash: {
     image: './assets/splash.png',
@@ -24,15 +24,30 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: true,
     bundleIdentifier: 'com.yourdomain.vafmpnavigator',
   },
+
   android: {
+    package: 'com.yourdomain.vafmpnavigator',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#0b1220',
     },
-    package: 'com.yourdomain.vafmpnavigator',
+    // leave edge-to-edge to Expo defaults; our tab bar already pads for insets
   },
 
-  // ✅ Public runtime variables
+  // ✅ Correct place for nav bar config (prevents overlap on many Androids)
+  androidNavigationBar: {
+    backgroundColor: '#0b0b10',
+    barStyle: 'light-content', // light icons
+    visible: 'sticky-immersive', // keeps bar present but non-janky
+  },
+
+  // (Optional) keep status bar readable on dark bg
+  androidStatusBar: {
+    backgroundColor: '#0b0b10',
+    barStyle: 'light-content',
+    translucent: true,
+  },
+
   extra: {
     FB_API_KEY: process.env.EXPO_PUBLIC_FB_API_KEY,
     FB_AUTH_DOMAIN: process.env.EXPO_PUBLIC_FB_AUTH_DOMAIN,
@@ -40,10 +55,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     FB_STORAGE_BUCKET: process.env.EXPO_PUBLIC_FB_STORAGE_BUCKET,
     FB_SENDER_ID: process.env.EXPO_PUBLIC_FB_SENDER_ID,
     FB_APP_ID: process.env.EXPO_PUBLIC_FB_APP_ID,
-
-    SENTRY_DSN: process.env.SENTRY_DSN,
-    SENTRY_ORG: process.env.SENTRY_ORG,
-    SENTRY_PROJECT: process.env.SENTRY_PROJECT,
 
     EAS_PROJECT_ID: process.env.EAS_PROJECT_ID,
     eas: { projectId: process.env.EAS_PROJECT_ID },

@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { colors, fs, GUTTER } from '../styles/shared';
+import { colors, fs, GUTTER, shared } from '../styles/shared';
 
 export type Option = { label: string; value: string };
 
@@ -51,9 +51,9 @@ export default function Select({
         {icon ? (
           <MaterialIcons
             name={icon}
-            size={fs(18)}
+            size={fs(20)}
             color={colors.muted}
-            style={{ marginRight: 6 }}
+            style={{ marginRight: 8 }}
           />
         ) : null}
         <Text
@@ -64,9 +64,9 @@ export default function Select({
         </Text>
         <MaterialIcons
           name={open ? 'expand-less' : 'expand-more'}
-          size={fs(20)}
+          size={fs(22)}
           color={colors.muted}
-          style={{ marginLeft: 6 }}
+          style={{ marginLeft: 8 }}
         />
       </Pressable>
 
@@ -82,13 +82,13 @@ export default function Select({
           <View style={styles.panelHeader}>
             <Text style={styles.panelTitle}>{label}</Text>
             <Pressable onPress={() => setOpen(false)} hitSlop={8}>
-              <MaterialIcons name="close" size={fs(20)} color="#111" />
+              <MaterialIcons name="close" size={fs(22)} color="#111" />
             </Pressable>
           </View>
 
           <ScrollView
-            style={{ maxHeight: 360 }}
-            contentContainerStyle={{ paddingVertical: 4 }}
+            style={{ maxHeight: 380 }}
+            contentContainerStyle={{ paddingVertical: 6 }}
             keyboardShouldPersistTaps="handled"
           >
             {/* “All” / Clear */}
@@ -129,7 +129,7 @@ export default function Select({
                     {o.label}
                   </Text>
                   {active ? (
-                    <MaterialIcons name="check" size={fs(18)} color="#111" />
+                    <MaterialIcons name="check" size={fs(20)} color="#111" />
                   ) : null}
                 </Pressable>
               );
@@ -150,18 +150,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: colors.card,
     borderRadius: 10,
-    paddingHorizontal: 10,
-    height: 46,
+    paddingHorizontal: 12,
+    height: 50,
     width: '100%',
     alignSelf: 'stretch',
   },
   fieldDisabled: { opacity: 0.5 },
   fieldPressed: { opacity: 0.85 },
   fieldText: {
-    color: colors.text,
+    ...shared.textLg, // ← bigger default text
+    fontWeight: '700',
     flex: 1,
-    fontSize: fs(16),
-    fontWeight: '600',
   },
   placeholder: {
     color: colors.muted,
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
     top: '20%',
     borderRadius: 12,
     backgroundColor: '#fff',
-    padding: 12,
+    padding: 14,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 10,
@@ -191,20 +190,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 6,
+    paddingBottom: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#e5e7eb',
-    marginBottom: 6,
+    marginBottom: 8,
   },
-  panelTitle: { fontSize: fs(16), fontWeight: '800', color: '#111' },
+  panelTitle: { fontSize: fs(20), fontWeight: '800', color: '#111' },
 
   // Options
   option: {
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
     backgroundColor: '#fff',
     borderRadius: 8,
-    marginVertical: 2,
+    marginVertical: 3,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -215,6 +214,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cfe1ff',
   },
-  optionText: { color: '#111', fontSize: fs(16), fontWeight: '700' },
+  optionText: {
+    // Larger list item text for accessibility
+    fontSize: fs(18),
+    fontWeight: '700',
+    color: '#111',
+  },
   optionTextActive: { color: '#0b3ea8' },
 });

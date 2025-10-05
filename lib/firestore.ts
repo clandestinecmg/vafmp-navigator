@@ -12,13 +12,12 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-/** Core provider fields used by the app UI */
+/** Core provider fields used by the app UI (billing removed) */
 export type ProviderBase = {
   id: string;
   name: string;
   city?: string;
   country?: string;
-  billing?: 'Direct' | 'Reimbursement' | string | null;
   phone?: string;
   email?: string;
   mapsUrl?: string; // normalized for UI
@@ -35,6 +34,9 @@ type ProviderDoc = Omit<ProviderBase, 'id' | 'mapsUrl'> &
   Partial<Pick<ProviderBase, 'id' | 'mapsUrl'>> & {
     /** legacy key some docs use */
     googleMapsUrl?: string;
+    /** legacy fields kept only so old docs don’t explode; ignored on normalize */
+    billing?: unknown;
+    billingType?: unknown;
   } & Record<string, unknown>;
 
 /** Normalize Firestore doc data -> Provider */
@@ -46,8 +48,13 @@ function toProvider(docId: string, raw: ProviderDoc): Provider {
     (typeof raw.googleMapsUrl === 'string' && raw.googleMapsUrl) ||
     (typeof raw.mapsUrl === 'string' ? raw.mapsUrl : undefined);
 
-  // Drop legacy key so UI sees only normalized fields
-  const { googleMapsUrl: _legacy, ...rest } = raw;
+  // Strip legacy/unused keys from the returned object
+  const {
+    googleMapsUrl: _legacyMap,
+    billing: _b,
+    billingType: _bt,
+    ...rest
+  } = raw;
 
   return {
     ...rest,

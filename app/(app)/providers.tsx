@@ -1,11 +1,10 @@
-// app/(app)/providers.tsx
 import * as React from 'react';
-import { View, Text, FlatList, Alert } from 'react-native';
+import { View, Text, FlatList, Alert, StyleSheet } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useQuery } from '@tanstack/react-query';
 
 import Background from '../../components/Background';
-import { shared } from '../../styles/shared';
+import { shared, colors } from '../../styles/shared';
 import Select, { type Option as SelectOption } from '../../components/Select';
 import ProviderCard from '../../components/ProviderCard';
 
@@ -13,12 +12,24 @@ import { auth } from '../../lib/authApi';
 import { getAllProviders, type Provider } from '../../lib/firestore';
 import { useFavoriteIds, useToggleFavorite } from '../../lib/favorites';
 
-type LegacyBilling = { billingType?: string | null };
-
-function getBilling(p: Provider): string | null {
-  const withLegacy = p as unknown as Provider & LegacyBilling;
-  return withLegacy.billing ?? withLegacy.billingType ?? null;
-}
+const S = StyleSheet.create({
+  filterCard: {
+    ...shared.cardUnified,
+    paddingTop: 12,
+    paddingBottom: 12,
+    gap: 10,
+  },
+  bannerRow: {
+    ...shared.row,
+    justifyContent: 'center',
+    paddingTop: 2,
+  },
+  bannerText: {
+    ...shared.textLg,
+    color: colors.text,
+    fontWeight: '800',
+  },
+});
 
 export default function Providers() {
   const {
@@ -30,14 +41,17 @@ export default function Providers() {
     queryFn: getAllProviders,
   });
 
-  const uid = auth.currentUser?.uid ?? null;
+  // 🔒 Favorites (force uid to string|null to satisfy TS)
+  const uid: string | null =
+    (auth.currentUser?.uid as string | undefined) ?? null;
   const { data: favIds = [] } = useFavoriteIds(uid);
   const toggleFav = useToggleFavorite(uid);
 
+  // 🎛 Filters (Country + City only)
   const [country, setCountry] = React.useState<string | null>(null);
   const [city, setCity] = React.useState<string | null>(null);
-  const [billing, setBilling] = React.useState<string | null>(null);
 
+  // Options built from the provider pool
   const countryOptions: SelectOption[] = React.useMemo(() => {
     const s = new Set<string>();
     providers.forEach((p) => p.country && s.add(p.country));
@@ -47,30 +61,26 @@ export default function Providers() {
   }, [providers]);
 
   const cityOptions: SelectOption[] = React.useMemo(() => {
-    const filteredByCountry = country
+    const inCountry = country
       ? providers.filter((p) => p.country === country)
       : providers;
     const s = new Set<string>();
-    filteredByCountry.forEach((p) => p.city && s.add(p.city));
+    inCountry.forEach((p) => p.city && s.add(p.city));
     return Array.from(s)
       .sort()
       .map((v) => ({ label: v, value: v }));
   }, [providers, country]);
 
-  const billingOptions: SelectOption[] = React.useMemo(
-    () => [
-      { label: 'Direct', value: 'Direct' },
-      { label: 'Reimbursement', value: 'Reimbursement' },
-    ],
-    [],
+  // Apply filters
+  const filtered: Provider[] = React.useMemo(
+    () =>
+      providers.filter((p) => {
+        if (country && p.country !== country) return false;
+        if (city && p.city !== city) return false;
+        return true;
+      }),
+    [providers, country, city],
   );
-
-  const filtered: Provider[] = providers.filter((p) => {
-    if (country && p.country !== country) return false;
-    if (city && p.city !== city) return false;
-    if (billing && getBilling(p) !== billing) return false;
-    return true;
-  });
 
   const onToggleFavorite = (id: string, next: boolean) => {
     if (!uid) {
@@ -82,47 +92,46 @@ export default function Providers() {
 
   return (
     <Background>
+      {/* Fix blank screen issue w/ MaterialIcons */}
       <MaterialIcons name="check" size={0.001} color="transparent" />
       <View style={shared.safePad} />
-      <Text style={shared.titleCenter}>Providers</Text>
 
-      {/* Filters — full-width fields, unified card margins */}
-      <View style={[shared.card, { gap: 10 }]}>
-        <View style={{ width: '100%' }}>
-          <Select
-            label="Country"
-            icon="public"
-            placeholder="All countries"
-            value={country}
-            options={countryOptions}
-            onChange={(v) => {
-              setCountry(v);
-              setCity(null);
-            }}
-          />
-        </View>
+      <View style={shared.wrap}>
+        <Text style={shared.titleCenter}>Providers</Text>
 
-        <View style={{ width: '100%' }}>
-          <Select
-            label="City"
-            icon="location-city"
-            placeholder="All cities"
-            value={city}
-            disabled={!country}
-            options={cityOptions}
-            onChange={setCity}
-          />
-        </View>
+        {/* Filters (no Billing dropdown anymore) */}
+        <View style={S.filterCard}>
+          <View style={{ width: '100%' }}>
+            <Select
+              label="Country"
+              icon="public"
+              placeholder="All countries"
+              value={country}
+              options={countryOptions}
+              onChange={(v) => {
+                setCountry(v);
+                setCity(null);
+              }}
+            />
+          </View>
 
-        <View style={{ width: '100%' }}>
-          <Select
-            label="Billing"
-            icon="payments"
-            placeholder="All billing"
-            value={billing}
-            options={billingOptions}
-            onChange={setBilling}
-          />
+          <View style={{ width: '100%' }}>
+            <Select
+              label="City"
+              icon="location-city"
+              placeholder="All cities"
+              value={city}
+              disabled={!country}
+              options={cityOptions}
+              onChange={setCity}
+            />
+          </View>
+
+          {/* Friendly banner replaces the old Billing dropdown */}
+          <View style={S.bannerRow}>
+            <MaterialIcons name="verified" size={20} color={colors.green} />
+            <Text style={S.bannerText}>All Direct-Billing Providers</Text>
+          </View>
         </View>
       </View>
 

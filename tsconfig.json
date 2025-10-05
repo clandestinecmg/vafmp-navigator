@@ -1,18 +1,25 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    /* Modern targets so Expo/Babel can optimize */
     "target": "ES2020",
     "module": "ESNext",
     "jsx": "react-native",
+
+    /* Strict & type-safe */
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
+
+    /* Metro/Bundler friendly */
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
+
+    /* Don’t allow stray JS files to creep in */
     "allowJs": false,
     "checkJs": false,
 
-    /* Make sure our local shims are picked up */
+    /* Make sure our local shims and extra types are picked up */
     "typeRoots": ["./types", "./node_modules/@types"],
 
     /* Interop niceties */

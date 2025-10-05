@@ -9,10 +9,12 @@ import {
   StyleSheet,
   type TextInputProps,
 } from 'react-native';
-import { useProfile } from '../../hooks/userProfile';
-import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
-import type { Profile } from '../../types/profile';
+import { router } from 'expo-router';
 import Background from '../../components/Background';
+import { useProfile } from '../../hooks/userProfile';
+import { useAuth } from '../../hooks/useAuth';
+import { shared, colors, fs } from '../../styles/shared';
+import type { Profile } from '../../types/profile';
 
 type Field = {
   key: keyof Profile;
@@ -86,6 +88,10 @@ const FIELDS: Field[] = [
 
 export default function ProfileScreen() {
   const { profile, setProfile, update, hydrated, saving } = useProfile();
+  const { user, signOutNow } = useAuth();
+  const isSignedIn = !!user;
+  const signOutUser = signOutNow;
+
   const setField = (key: keyof Profile, value: string) =>
     setProfile((p: Profile) => ({ ...p, [key]: value }));
 
@@ -93,62 +99,114 @@ export default function ProfileScreen() {
     <Background>
       <ScrollView
         style={shared.screenOnImage}
-        contentContainerStyle={{ padding: GUTTER, gap: 12, paddingBottom: 40 }}
+        contentContainerStyle={shared.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={shared.safePad} />
-        <Text style={shared.titleCenter}>Profile (Local Only)</Text>
+        <Text style={shared.titleCenter}>Local Profile</Text>
 
-        <View style={[shared.card, styles.notice]}>
-          <Text style={styles.noticeTitle}>Privacy note</Text>
-          <Text style={styles.noticeText}>
+        {/* Privacy Note — same chrome/transparency as other cards, centered text */}
+        <View style={[shared.cardUnified, styles.notice]}>
+          <Text style={styles.noticeTitle}>Privacy Note</Text>
+          <Text style={styles.noticeBody}>
             This profile is stored on your device only to speed up forms. It is
             not synced to any server.
           </Text>
         </View>
 
-        {FIELDS.map(
-          ({
-            key,
-            label,
-            keyboardType,
-            autoCapitalize,
-            secureTextEntry,
-            autoComplete,
-            textContentType,
-            placeholder,
-            autoCorrect,
-          }) => (
-            <View key={key} style={shared.card}>
-              <Text style={styles.label}>{label}</Text>
-              <TextInput
-                value={String(profile[key] ?? '')}
-                onChangeText={(t) => setField(key, t)}
-                keyboardType={keyboardType}
-                autoCapitalize={autoCapitalize}
-                secureTextEntry={secureTextEntry}
-                placeholder={placeholder}
-                placeholderTextColor={colors.muted}
-                autoComplete={autoComplete}
-                textContentType={textContentType}
-                autoCorrect={autoCorrect}
-                returnKeyType="next"
-                style={styles.input}
-              />
-            </View>
-          ),
+        {/* Fields */}
+        <View style={shared.cardUnified}>
+          {FIELDS.map(
+            ({
+              key,
+              label,
+              keyboardType,
+              autoCapitalize,
+              secureTextEntry,
+              autoComplete,
+              textContentType,
+              placeholder,
+              autoCorrect,
+            }) => (
+              <View key={key} style={{ marginBottom: 16 }}>
+                <Text style={styles.label}>{label}</Text>
+                <TextInput
+                  value={String(profile[key] ?? '')}
+                  onChangeText={(t) => setField(key, t)}
+                  keyboardType={keyboardType}
+                  autoCapitalize={autoCapitalize}
+                  secureTextEntry={secureTextEntry}
+                  placeholder={placeholder}
+                  placeholderTextColor={colors.muted}
+                  autoComplete={autoComplete}
+                  textContentType={textContentType}
+                  autoCorrect={autoCorrect}
+                  returnKeyType="next"
+                  style={styles.input}
+                />
+              </View>
+            ),
+          )}
+
+          {/* Save */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Save profile locally"
+            disabled={!hydrated || saving}
+            onPress={() => update(profile)}
+            style={[
+              shared.btn,
+              shared.btnPrimary,
+              { opacity: hydrated && !saving ? 1 : 0.6, marginTop: 10 },
+            ]}
+            hitSlop={8}
+          >
+            <Text style={shared.btnLabel}>{saving ? 'Saving…' : 'Save'}</Text>
+          </Pressable>
+        </View>
+
+        {/* Auth section */}
+        {isSignedIn ? (
+          <View style={shared.cardUnified}>
+            <Text style={shared.sectionHeaderCenter}>Account</Text>
+            <Text
+              style={[
+                shared.textMuted,
+                { textAlign: 'center', marginBottom: 10 },
+              ]}
+            >
+              UID: {user?.uid}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={signOutUser}
+              style={[shared.btn, shared.btnDanger]}
+            >
+              <Text style={shared.btnLabel}>Sign Out</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={shared.cardUnified}>
+            <Text style={shared.sectionHeaderCenter}>Account</Text>
+            <Text
+              style={[
+                shared.textMuted,
+                { textAlign: 'center', marginBottom: 10 },
+              ]}
+            >
+              Not signed in
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(auth)/signin')}
+              style={[shared.btn, shared.btnPrimary]}
+            >
+              <Text style={shared.btnLabel}>Sign In</Text>
+            </Pressable>
+          </View>
         )}
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Save profile locally"
-          disabled={!hydrated || saving}
-          onPress={() => update(profile)}
-          style={[styles.saveBtn, { opacity: hydrated && !saving ? 1 : 0.6 }]}
-          hitSlop={8}
-        >
-          <Text style={styles.saveLabel}>{saving ? 'Saving…' : 'Save'}</Text>
-        </Pressable>
+        <View style={shared.bottomSpacer} />
       </ScrollView>
     </Background>
   );
@@ -156,52 +214,34 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   label: {
+    ...shared.textMd,
     color: colors.muted,
-    fontSize: fs(14),
-    lineHeight: lh(14),
     marginBottom: 8,
-    paddingHorizontal: 0,
   },
   input: {
     color: colors.text,
     backgroundColor: colors.bg,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    fontSize: fs(16),
-    lineHeight: lh(16),
-  },
-  saveBtn: {
-    backgroundColor: colors.blue,
-    paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginHorizontal: GUTTER, // unify width with cards
+    paddingVertical: 16,
+    paddingHorizontal: 14,
+    fontSize: fs(18),
   },
-  saveLabel: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: fs(16),
-    lineHeight: lh(16),
-    letterSpacing: 0.2,
-  },
-  notice: { backgroundColor: '#0e1a31', borderColor: '#1d2a45' },
+  // same look/opacity as other cards
+  notice: { backgroundColor: 'rgba(2,6,23,0.70)', borderColor: colors.border },
   noticeTitle: {
+    ...shared.textLg,
+    fontSize: fs(20),
     color: colors.gold,
     fontWeight: '800',
-    fontSize: fs(16),
-    lineHeight: lh(16),
-    marginBottom: 6,
-    paddingHorizontal: 0,
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  noticeText: {
+  noticeBody: {
+    ...shared.textMd,
+    fontSize: fs(17),
     color: colors.text,
-    fontSize: fs(14),
-    lineHeight: lh(18),
-    paddingHorizontal: 0,
+    textAlign: 'center',
   },
 });

@@ -18,7 +18,6 @@ export type ProviderCardItem = {
   name: string;
   city?: string;
   country?: string;
-  billing?: 'Direct' | 'Reimbursement' | string | null;
   phone?: string;
   mapsUrl?: string;
   placeId?: string;
@@ -37,11 +36,6 @@ export default function ProviderCard({
   isFavorite,
   onToggleFavorite,
 }: Props) {
-  const billing =
-    (item.billing ?? '').toString().trim().toLowerCase() === 'direct'
-      ? 'Direct'
-      : 'Reimbursement';
-
   const onPressMaps = () => {
     const url = buildGoogleMapsUrl({
       name: item.name,
@@ -135,14 +129,10 @@ export default function ProviderCard({
         />
       </View>
 
+      {/* Always show DIRECT badge */}
       <View style={styles.badgeRow}>
-        <View
-          style={[
-            styles.badge,
-            billing === 'Direct' ? styles.badgeDirect : styles.badgeReimb,
-          ]}
-        >
-          <Text style={styles.badgeText}>{billing}</Text>
+        <View style={[styles.badge, styles.badgeDirect]}>
+          <Text style={styles.badgeText}>DIRECT</Text>
         </View>
       </View>
     </View>
@@ -189,13 +179,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontSize: fs(16),
+    fontSize: fs(18),
     fontWeight: '700',
     flexShrink: 1,
     paddingRight: 8,
     color: colors.text,
   },
-  // Match Resources body size
   sub: { marginTop: 4, color: colors.muted, fontSize: fs(16) },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
@@ -209,16 +198,15 @@ const styles = StyleSheet.create({
   },
   pillPressed: { opacity: 0.9 },
   pillRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  pillText: { fontWeight: '800', fontSize: fs(14) },
+  pillText: { fontWeight: '800', fontSize: fs(15) },
 
   badgeRow: { marginTop: 10, flexDirection: 'row' },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 },
   badgeDirect: { backgroundColor: '#065f46' },
-  badgeReimb: { backgroundColor: '#7f1d1d' },
   badgeText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: fs(12),
+    fontSize: fs(13),
     letterSpacing: 0.3,
   },
 });

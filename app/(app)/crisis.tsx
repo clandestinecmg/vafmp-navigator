@@ -1,253 +1,281 @@
 // app/(app)/crisis.tsx
-import React from 'react';
+import * as React from 'react';
 import {
-  ScrollView,
   View,
   Text,
-  Pressable,
+  ScrollView,
+  StyleSheet,
   Alert,
-  Platform,
+  Linking,
   Image,
   Dimensions,
+  Pressable,
 } from 'react-native';
-import * as Linking from 'expo-linking';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ImageZoom from 'react-native-image-pan-zoom';
-import crisisNumbers from '../../assets/seeds/crisis_numbers.json';
-import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
 import Background from '../../components/Background';
+import { shared, colors, fs, GUTTER, MAX_WIDTH } from '../../styles/shared';
 
-// Local AOR map image
-import aorMap from '../../assets/crisis/dod-aor-map.jpg';
+const aorMap = require('../../assets/crisis/dod-aor-map.jpg');
 
-function openURL(url: string) {
-  Linking.openURL(url).catch(() => Alert.alert('Could not open link'));
-}
-function openTel(number: string) {
-  Linking.openURL(`tel:${number}`).catch(() =>
-    Alert.alert('Could not open dialer'),
+function callNumber(num: string) {
+  const tel = num.replace(/[^\d+]/g, '');
+  return Linking.openURL(`tel:${tel}`).catch(() =>
+    Alert.alert('Error', 'Unable to open dialer.'),
   );
 }
-function openSMS(number: string, body?: string) {
-  const sep = Platform.OS === 'ios' ? '&' : '?';
-  Linking.openURL(
-    `sms:${number}${body ? `${sep}body=${encodeURIComponent(body)}` : ''}`,
-  ).catch(() => Alert.alert('Could not open messages'));
+
+function openUrl(url: string) {
+  return Linking.openURL(url).catch(() =>
+    Alert.alert('Error', 'Unable to open link.'),
+  );
 }
 
-// Card-specific styles (scaled)
-const CARD = {
-  base: {
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: colors.card,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginHorizontal: GUTTER,
-  },
-  title: {
-    fontSize: fs(18),
-    lineHeight: lh(18),
-    fontWeight: '700' as const,
-    marginBottom: 8,
-    color: colors.text,
-  },
-  text: { fontSize: fs(16), lineHeight: lh(16), color: colors.text },
-  link: {
-    fontSize: fs(16),
-    lineHeight: lh(16),
-    textDecorationLine: 'underline' as const,
-    color: colors.blue, // ← back to blue
-    marginTop: 6,
-  },
-  btn: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: 'center' as const,
-    marginTop: 10,
-    backgroundColor: colors.blue,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  btnLabel: {
-    fontSize: fs(16),
-    lineHeight: lh(16),
-    fontWeight: '600' as const,
-    color: '#fff',
-  },
-  row: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: 8,
-    marginTop: 6,
-  },
-};
-
 export default function Crisis() {
-  const { width: W } = Dimensions.get('window');
-  const cropWidth = W - GUTTER * 2;
-  const cropHeight = 320;
-
   return (
     <Background>
       <ScrollView
-        style={shared.screenOnImage}
-        contentContainerStyle={{ padding: GUTTER, paddingBottom: 40 }}
+        style={shared.page}
+        contentContainerStyle={[
+          shared.wrap,
+          { paddingTop: GUTTER, paddingBottom: 40 },
+        ]}
+        keyboardShouldPersistTaps="handled"
       >
         <View style={shared.safePad} />
-        <Text style={shared.titleCenter}>Crisis</Text>
+        <Text style={shared.titleCenter}>Crisis Resources</Text>
 
-        {/* Immediate danger banner (full-bleed for emphasis) */}
-        <View
-          style={[
-            shared.fullBleed,
-            CARD.base,
-            {
-              backgroundColor: colors.red,
-              marginHorizontal: -GUTTER, // cancel container padding to bleed
-              borderRadius: 0, // squared edges for banner feel
-            },
-          ]}
-        >
-          <Text style={[CARD.text, { fontWeight: '700' as const }]}>
+        {/* Red emergency banner */}
+        <View style={S.emergencyBanner}>
+          <Text style={S.emergencyText}>
             If you’re in immediate danger, call your local emergency number now.
           </Text>
         </View>
 
-        {/* Veterans Crisis Line */}
-        <View style={CARD.base}>
-          <Text style={CARD.title}>U.S. Veterans Crisis Line</Text>
-          <Text style={CARD.text}>
+        {/* U.S. Veterans Crisis Line */}
+        <View style={shared.card}>
+          <Text style={S.sectionTitle}>U.S. Veterans Crisis Line</Text>
+
+          <Text style={[shared.textMd, { marginTop: 6, textAlign: 'left' }]}>
             24/7 confidential support for Veterans, service members, Guard &
-            Reserve, and their families.
-          </Text>
-          <Text style={[CARD.text, { marginTop: 4 }]}>
-            Services: talk/text with trained responders, safety planning, and
-            referrals to VA & local care.
+            Reserve, and their families. Services include talk/text with trained
+            responders, safety planning, and referrals to VA & local care.
           </Text>
 
-          <Pressable
-            onPress={() => openURL('https://www.veteranscrisisline.net')}
-          >
-            <View style={CARD.row}>
-              <MaterialIcons
-                name="open-in-new"
-                size={fs(18)}
-                color={colors.blue}
-              />
-              <Text style={CARD.link}>Visit VeteransCrisisLine.net</Text>
-            </View>
-          </Pressable>
+          <View style={S.row}>
+            <MaterialIcons name="public" size={fs(18)} color={colors.gold} />
+            <Text
+              style={S.link}
+              onPress={() => openUrl('https://www.veteranscrisisline.net/')}
+            >
+              Visit VeteransCrisisLine.net
+            </Text>
+          </View>
 
           <Pressable
-            style={CARD.btn}
+            style={[shared.btn, shared.btnPrimary, { marginTop: 12 }]}
             onPress={() =>
-              openURL('https://www.veteranscrisisline.net/get-help-now/chat/')
+              openUrl('https://www.veteranscrisisline.net/get-help-now/chat/')
             }
           >
-            <Text style={CARD.btnLabel}>Chat Online</Text>
+            <Text style={shared.btnLabel}>Chat Online</Text>
           </Pressable>
 
-          <Pressable style={CARD.btn} onPress={() => openTel('988')}>
-            <Text style={CARD.btnLabel}>Call 988 (Press 1 for Veterans)</Text>
+          <Pressable
+            style={[shared.btn, shared.btnPrimary, { marginTop: 10 }]}
+            onPress={() => callNumber('988')}
+          >
+            <Text style={shared.btnLabel}>Call 988 (Press 1 for Veterans)</Text>
           </Pressable>
 
-          <Pressable style={CARD.btn} onPress={() => openSMS('838255')}>
-            <Text style={CARD.btnLabel}>Text 838255</Text>
+          <Pressable
+            style={[shared.btn, shared.btnPrimary, { marginTop: 10 }]}
+            onPress={async () => {
+              try {
+                const url = 'sms:838255';
+                const ok = await Linking.canOpenURL(url);
+                if (ok) await Linking.openURL(url);
+              } catch {
+                // swallow
+              }
+            }}
+          >
+            <Text style={shared.btnLabel}>Text 838255</Text>
           </Pressable>
         </View>
 
-        {/* Future: Local crisis line by location */}
-        <View style={CARD.base}>
-          <Text style={CARD.title}>Local crisis line (by your location)</Text>
-          <Text style={CARD.text}>
+        {/* Local crisis line */}
+        <View style={shared.card}>
+          <Text style={S.sectionTitle}>Local Crisis Line</Text>
+          <Text style={[shared.textMd, { textAlign: 'left' }]}>
             We’ll automatically detect your country and show the nearest mental
             health hotline for your region (e.g., Thailand’s local line).
           </Text>
-          <Text style={[CARD.text, { marginTop: 4 }]}>
+          <Text style={[shared.textMd, { marginTop: 6, textAlign: 'left' }]}>
             Coming soon — this will ask permission to access your location and
             match it against a vetted hotline directory.
           </Text>
         </View>
 
-        {/* Overseas contacts (official U.S. entry points) */}
-        <View style={CARD.base}>
-          <Text style={CARD.title}>Calling from Overseas?</Text>
-          <Text style={CARD.text}>
-            Dial the U.S. country code (+1). If one number doesn’t connect, try
-            another region. DSN 988 works from base phones.
-          </Text>
+        {/* Overseas numbers */}
+        <View style={shared.card}>
+          <Text style={S.sectionTitle}>Overseas Numbers by COM Region</Text>
 
-          {Object.entries(crisisNumbers).map(([region, entries]) => (
-            <View key={region} style={{ marginTop: 12 }}>
-              <Text style={[CARD.text, { fontWeight: '700' as const }]}>
-                {region}
-              </Text>
-              {entries.map((entry, idx) => (
-                <Pressable
-                  key={idx}
-                  onPress={() =>
-                    entry.type === 'tel' ? openTel(entry.number) : undefined
-                  }
-                  disabled={entry.type !== 'tel'}
-                >
-                  <View style={CARD.row}>
-                    {entry.type === 'tel' ? (
-                      <MaterialIcons
-                        name="phone"
-                        size={fs(18)}
-                        color={colors.blue}
-                      />
-                    ) : null}
-                    <Text style={CARD.link}>{entry.label}</Text>
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-          ))}
-        </View>
-
-        {/* AOR Map (zoom & pan) */}
-        <View style={CARD.base}>
-          <Text style={CARD.title}>DoD Areas of Responsibility (Map)</Text>
-
-          <View
-            style={{
-              borderRadius: 12,
-              overflow: 'hidden',
-              borderWidth: 1,
-              borderColor: colors.border,
-              backgroundColor: colors.bg,
-            }}
-          >
-            <ImageZoom
-              cropWidth={cropWidth}
-              cropHeight={cropHeight}
-              imageWidth={cropWidth}
-              imageHeight={cropHeight}
-              minScale={1}
-              maxScale={3}
-              enableCenterFocus={false}
-              pinchToZoom
-              panToMove
-              doubleClickInterval={250}
-            >
-              <Image
-                source={aorMap}
-                accessibilityLabel="Map showing Department of Defense geographic combatant commands and their areas of responsibility"
-                style={{ width: cropWidth, height: cropHeight }}
-                resizeMode="contain"
-              />
-            </ImageZoom>
+          <View style={S.row}>
+            <MaterialIcons name="info" size={fs(18)} color={colors.gold} />
+            <Text style={[S.link, { fontWeight: '700' }]}>
+              On base: DSN 988
+            </Text>
           </View>
 
-          <Text style={[CARD.text, { marginTop: 8 }]}>
-            Pinch to zoom and drag to pan. Double-tap to zoom.
-          </Text>
+          <Text style={S.regionHeading}>NORTHCOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('988')}>
+              Dial 988 then Press 1
+            </Text>
+          </View>
+
+          <Text style={S.regionHeading}>PACOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('+18447025493')}>
+              +1 844-702-5493 (off base)
+            </Text>
+          </View>
+
+          <Text style={S.regionHeading}>EUCOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('+18447025495')}>
+              +1 844-702-5495 (off base)
+            </Text>
+          </View>
+
+          <Text style={S.regionHeading}>CENTCOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('+18554227719')}>
+              +1 855-422-7719 (off base)
+            </Text>
+          </View>
+
+          <Text style={S.regionHeading}>AFRICOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('+18884826054')}>
+              +1 888-482-6054 (off base)
+            </Text>
+          </View>
+
+          <Text style={S.regionHeading}>SOUTHCOM</Text>
+          <View style={S.row}>
+            <MaterialIcons name="phone" size={fs(18)} color={colors.green} />
+            <Text style={S.link} onPress={() => callNumber('+18669899599')}>
+              +1 866-989-9599 (off base)
+            </Text>
+          </View>
+        </View>
+
+        {/* Map */}
+        <View style={shared.card}>
+          <Text style={S.sectionTitle}>DoD Areas of Responsibility</Text>
+
+          {(() => {
+            const src = Image.resolveAssetSource(aorMap);
+            const screenW = Dimensions.get('window').width;
+            const maxInner = Math.min(screenW, MAX_WIDTH);
+            const innerW = Math.round(maxInner - 32); // ~card paddings
+            const aspect = src.height / src.width || 0.5625;
+            const innerH = Math.round(innerW * aspect);
+
+            return (
+              <View style={S.mapClipper}>
+                <ImageZoom
+                  cropWidth={innerW}
+                  cropHeight={innerH}
+                  imageWidth={innerW}
+                  imageHeight={innerH}
+                  minScale={1}
+                  maxScale={3}
+                  enableCenterFocus
+                  pinchToZoom
+                  panToMove
+                >
+                  <Image
+                    source={aorMap}
+                    style={{ width: innerW, height: innerH }}
+                    resizeMode="cover"
+                  />
+                </ImageZoom>
+              </View>
+            );
+          })()}
+
+          <Text style={S.helperText}>Pinch to zoom and drag to pan.</Text>
         </View>
       </ScrollView>
     </Background>
   );
 }
+
+const lh = (px: number) => Math.round(fs(px) * 1.3);
+
+const S = StyleSheet.create({
+  emergencyBanner: {
+    backgroundColor: '#D32F2F',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  emergencyText: {
+    color: 'white',
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    ...shared.text,
+    fontWeight: '800',
+    fontSize: fs(20),
+    lineHeight: lh(20),
+    marginBottom: 10,
+    textAlign: 'center',
+    color: colors.gold,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 6,
+  },
+  link: {
+    ...shared.text,
+    color: colors.gold,
+    fontWeight: '700',
+    fontSize: fs(18),
+    lineHeight: lh(18),
+    marginLeft: 8,
+    flexShrink: 1,
+  },
+  regionHeading: {
+    ...shared.text,
+    fontWeight: '800',
+    fontSize: fs(19),
+    lineHeight: lh(19),
+    textAlign: 'left',
+    marginTop: 12,
+    marginBottom: 4,
+    color: colors.text,
+  },
+  mapClipper: {
+    overflow: 'hidden',
+    borderRadius: 12,
+    alignSelf: 'center',
+    backgroundColor: colors.bg,
+  },
+  helperText: {
+    ...shared.textSm,
+    textAlign: 'center',
+    marginTop: 8,
+    color: colors.text,
+  },
+});
