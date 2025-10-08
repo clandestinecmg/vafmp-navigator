@@ -3,6 +3,11 @@ import * as React from 'react';
 import { Tabs } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { colors } from '../styles/shared';
 
 const queryClient = new QueryClient();
@@ -11,9 +16,11 @@ function FontWarmup() {
   return <MaterialIcons name="check" size={0.001} color="transparent" />;
 }
 
-export default function RootLayout() {
+function LayoutInner() {
+  const insets = useSafeAreaInsets();
+  const bottomPad = Math.max(insets.bottom, 10);
   return (
-    <QueryClientProvider client={queryClient}>
+    <View style={{ flex: 1 }}>
       <FontWarmup />
       <Tabs
         screenOptions={{
@@ -23,8 +30,9 @@ export default function RootLayout() {
           tabBarStyle: {
             backgroundColor: colors.bg,
             borderTopColor: colors.border,
-            height: 60,
+            minHeight: 56,
             paddingTop: 6,
+            paddingBottom: bottomPad,
           },
           tabBarLabelStyle: { fontSize: 12, fontWeight: '700' },
         }}
@@ -93,6 +101,16 @@ export default function RootLayout() {
         <Tabs.Screen name="error" options={{ href: null }} />
         <Tabs.Screen name="(auth)/login" options={{ href: null }} />
       </Tabs>
+    </View>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <LayoutInner />
+      </SafeAreaProvider>
     </QueryClientProvider>
   );
 }
