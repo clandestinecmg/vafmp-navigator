@@ -97,12 +97,14 @@ export default function ProfileScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={shared.safePad} />
-        <Text style={shared.titleCenter}>Profile (Local Only)</Text>
+        <Text style={[shared.titleCenter, { color: colors.gold }]}>
+          Profile
+        </Text>
 
         <View style={[shared.card, styles.notice]}>
           <Text style={styles.noticeTitle}>Privacy note</Text>
           <Text style={styles.noticeText}>
-            This profile is stored on your device only to speed up forms. It is
+            This profile is stored on your device ONLY to speed up forms. It is
             not synced to any server.
           </Text>
         </View>

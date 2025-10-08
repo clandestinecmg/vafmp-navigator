@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
   Image,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import * as Linking from 'expo-linking';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -85,8 +85,8 @@ const CARD = {
   },
 };
 
-export default function Crisis() {
-  const { width: W } = Dimensions.get('window');
+export default function Crisis(): React.ReactElement {
+  const { width: W } = useWindowDimensions();
   const cropWidth = W - GUTTER * 2;
   const cropHeight = 320;
 
@@ -97,7 +97,9 @@ export default function Crisis() {
         contentContainerStyle={{ padding: GUTTER, paddingBottom: 40 }}
       >
         <View style={shared.safePad} />
-        <Text style={shared.titleCenter}>Crisis</Text>
+        <Text style={[shared.titleCenter, { color: colors.gold }]}>
+          Veterans Crisis Line
+        </Text>
 
         {/* Immediate danger banner (full-bleed for emphasis) */}
         <View
@@ -108,6 +110,8 @@ export default function Crisis() {
               backgroundColor: colors.red,
               marginHorizontal: -GUTTER, // cancel container padding to bleed
               borderRadius: 0, // squared edges for banner feel
+              borderWidth: 0,
+              borderColor: 'transparent',
             },
           ]}
         >
@@ -129,6 +133,8 @@ export default function Crisis() {
           </Text>
 
           <Pressable
+            accessibilityRole="link"
+            hitSlop={8}
             onPress={() => openURL('https://www.veteranscrisisline.net')}
           >
             <View style={CARD.row}>
@@ -142,6 +148,8 @@ export default function Crisis() {
           </Pressable>
 
           <Pressable
+            accessibilityRole="button"
+            hitSlop={8}
             style={CARD.btn}
             onPress={() =>
               openURL('https://www.veteranscrisisline.net/get-help-now/chat/')
@@ -150,11 +158,21 @@ export default function Crisis() {
             <Text style={CARD.btnLabel}>Chat Online</Text>
           </Pressable>
 
-          <Pressable style={CARD.btn} onPress={() => openTel('988')}>
+          <Pressable
+            accessibilityRole="button"
+            hitSlop={8}
+            style={CARD.btn}
+            onPress={() => openTel('988')}
+          >
             <Text style={CARD.btnLabel}>Call 988 (Press 1 for Veterans)</Text>
           </Pressable>
 
-          <Pressable style={CARD.btn} onPress={() => openSMS('838255')}>
+          <Pressable
+            accessibilityRole="button"
+            hitSlop={8}
+            style={CARD.btn}
+            onPress={() => openSMS('838255')}
+          >
             <Text style={CARD.btnLabel}>Text 838255</Text>
           </Pressable>
         </View>
@@ -177,7 +195,7 @@ export default function Crisis() {
           <Text style={CARD.title}>Calling from Overseas?</Text>
           <Text style={CARD.text}>
             Dial the U.S. country code (+1). If one number doesn’t connect, try
-            another region. DSN 988 works from base phones.
+            another region. DSN 988 works from all base phones.
           </Text>
 
           {Object.entries(crisisNumbers).map(([region, entries]) => (
@@ -188,6 +206,8 @@ export default function Crisis() {
               {entries.map((entry, idx) => (
                 <Pressable
                   key={idx}
+                  accessibilityRole={entry.type === 'tel' ? 'button' : 'text'}
+                  hitSlop={entry.type === 'tel' ? 8 : 0}
                   onPress={() =>
                     entry.type === 'tel' ? openTel(entry.number) : undefined
                   }
@@ -198,7 +218,7 @@ export default function Crisis() {
                       <MaterialIcons
                         name="phone"
                         size={fs(18)}
-                        color={colors.blue}
+                        color={colors.green}
                       />
                     ) : null}
                     <Text style={CARD.link}>{entry.label}</Text>
@@ -220,6 +240,7 @@ export default function Crisis() {
               borderWidth: 1,
               borderColor: colors.border,
               backgroundColor: colors.bg,
+              alignSelf: 'stretch',
             }}
           >
             <ImageZoom
