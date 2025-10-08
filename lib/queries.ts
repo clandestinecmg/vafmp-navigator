@@ -1,13 +1,7 @@
 // lib/queries.ts
-// Centralized query helpers aligned with lib/firestore.ts
-// - Avoids `any` via safe narrows
-// - Normalizes billing to 'Direct' | 'Reimbursement'
-// - Provides helpers for counts, filtering, and facet derivation
-
 import { getAllProviders, type Provider } from './firestore';
 
 // ---------- utilities ----------
-
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null;
 }
@@ -17,24 +11,10 @@ function getStr(obj: Record<string, unknown>, key: string): string | undefined {
   return typeof v === 'string' && v.trim().length > 0 ? v.trim() : undefined;
 }
 
-// ---------- normalization ----------
-
-export function normalizeBilling(billing?: string | null): Provider['billing'] {
-  if (!billing) return undefined;
-  const b = String(billing).trim().toLowerCase();
-  if (b === 'direct') return 'Direct';
-  if (b === 'reimbursement' || b === 'reimbursed') return 'Reimbursement';
-  return undefined;
-}
-
-/**
- * Coerce an unknown Firestore-ish object into a strict Provider shape.
- * Useful for legacy/one-off imports. Prefer using getAllProviders() when possible.
- */
+/** Coerce unknown object into a Provider shape (no billing) */
 export function coerceProvider(input: unknown): Provider {
   const r = isRecord(input) ? input : {};
 
-  // Prefer normalized mapsUrl; fall back to legacy mapUrl if present.
   const mapsUrl = getStr(r, 'mapsUrl') ?? getStr(r, 'mapUrl');
 
   const id = getStr(r, 'id') ?? '';
@@ -61,7 +41,6 @@ export function coerceProvider(input: unknown): Provider {
 
   const placeId = getStr(r, 'placeId');
 
-  // Keep extra keys without using `any`
   const extras: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(r)) {
     if (
@@ -70,7 +49,6 @@ export function coerceProvider(input: unknown): Provider {
         'name',
         'country',
         'city',
-        'billing',
         'phone',
         'email',
         'mapsUrl',
@@ -89,7 +67,6 @@ export function coerceProvider(input: unknown): Provider {
     name,
     country,
     city,
-    billing: normalizeBilling(getStr(r, 'billing')),
     phone,
     email,
     mapsUrl,
@@ -100,50 +77,36 @@ export function coerceProvider(input: unknown): Provider {
   };
 }
 
-/**
- * Fetch all providers (already normalized in lib/firestore).
- * We lightly re-normalize billing here to be resilient to older data.
- */
+/** Fetch providers (already TH/PH filtered in firestore.ts) */
 export async function fetchProviders(): Promise<Provider[]> {
-  const list = await getAllProviders(); // Provider[]
-  return list.map((p) => ({
-    ...p,
-    billing:
-      normalizeBilling(typeof p.billing === 'string' ? p.billing : undefined) ??
-      p.billing,
-  }));
+  return getAllProviders();
 }
 
-/** Lightweight count helper (client-side). */
+/** Lightweight count helper */
 export async function fetchProvidersCount(): Promise<number> {
   const list = await fetchProviders();
   return list.length;
 }
 
-/** Filter by country/city/billing (used by Providers screen). */
+/** Filter by country/city only (no billing) */
 export function filterProviders(
   providers: Provider[],
   opts: {
     country?: string;
     city?: string;
-    billing?: Provider['billing'];
   },
 ): Provider[] {
-  const { country, city, billing } = opts;
+  const { country, city } = opts;
 
   return providers.filter((p) => {
     const okCountry =
-      country && country !== 'All' ? p.country === country : true;
+      country && country !== 'All' ? (p.country ?? '') === country : true;
     const okCity =
       city && city !== 'All'
         ? (p.city ?? '').toLowerCase() === city.toLowerCase()
         : true;
-    const okBilling =
-      typeof billing !== 'undefined' && billing !== null
-        ? p.billing === billing
-        : true;
 
-    return okCountry && okCity && okBilling;
+    return okCountry && okCity;
   });
 }
 

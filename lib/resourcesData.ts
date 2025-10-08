@@ -9,11 +9,11 @@ export const VAFMP_LINKS: LinkItem[] = [
     url: 'https://www.va.gov/health-care/foreign-medical-program/',
   },
   {
-    label: 'VAFMP Online Registration',
+    label: 'Online Registration',
     url: 'https://www.va.gov/health-care/foreign-medical-program/register-form-10-7959f-1/introduction',
   },
   {
-    label: 'VAFMP File a Claim', // ← label fixed
+    label: 'File a Claim', // ← label fixed
     url: 'https://www.va.gov/health-care/file-foreign-medical-program-claim/', // ← URL fixed
   },
 ];

@@ -1,11 +1,10 @@
-// app/(app)/favorites.tsx
 import * as React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useQuery } from '@tanstack/react-query';
 
 import Background from '../../components/Background';
-import { shared } from '../../styles/shared';
+import { shared, colors } from '../../styles/shared';
 import ProviderCard from '../../components/ProviderCard';
 
 import { auth } from '../../lib/authApi';
@@ -29,7 +28,9 @@ export default function Favorites() {
     <Background>
       <MaterialIcons name="check" size={0.001} color="transparent" />
       <View style={shared.safePad} />
-      <Text style={shared.titleCenter}>Favorites</Text>
+      <Text style={[shared.titleCenter, { color: colors.gold }]}>
+        Favorites
+      </Text>
 
       <FlatList<Provider>
         contentContainerStyle={shared.listContent}

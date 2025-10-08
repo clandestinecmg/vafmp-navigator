@@ -14,24 +14,22 @@ export const colors = {
   red: '#ef4444',
   gold: '#facc15',
 
-  // Legacy aliases
+  // Legacy aliases (kept for older screens)
   green: '#22c55e',
   amber: '#f59e0b',
   cardBg: '#111827',
   cardBorder: '#1f2937',
 };
 
-// Global gutter to control card/screen horizontal rhythm
+// single source of truth for card width rhythm
 export const GUTTER = 6;
 
-// ----- Typography scale (global) --------------------------------------------
+// type scale helpers
 const SCALE = 1.16;
-
-// Exported helpers so screens can stay consistent
 export const fs = (n: number) => Math.round(n * SCALE);
 export const lh = (n: number) => Math.round(fs(n) * 1.4);
 
-// Top safe inset (“notch tax”)
+// top safe pad
 const topSafe =
   Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) + 12 : 16;
 
@@ -51,7 +49,14 @@ export const shared = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 10,
   },
-  // Centered header variant per your directive
+  titleGold: {
+    color: colors.gold,
+    fontSize: fs(24),
+    lineHeight: lh(24),
+    fontWeight: '800',
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
   titleCenter: {
     color: colors.text,
     fontSize: fs(24),
@@ -77,7 +82,6 @@ export const shared = StyleSheet.create({
   // Common rows & pills
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
 
-  // Pill (used on Login and elsewhere)
   pill: {
     borderRadius: 999,
     paddingHorizontal: 12,
@@ -87,20 +91,19 @@ export const shared = StyleSheet.create({
     borderColor: colors.border,
   },
 
-  // Full-bleed utility (for banners)
   fullBleed: {
     marginHorizontal: 0,
     borderRadius: 0,
   },
 
-  // Cards / lists (width is controlled by GUTTER)
+  // Cards / lists
   card: {
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
     padding: 16,
     borderRadius: 12,
-    marginHorizontal: GUTTER, // ⬅️ single source of truth for card width
+    marginHorizontal: GUTTER,
     marginTop: 10,
   },
   cardHeader: {
@@ -115,23 +118,6 @@ export const shared = StyleSheet.create({
     paddingBottom: 18,
     gap: 14,
   },
-
-  // Badges
-  badge: {
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: colors.border,
-  },
-  badgeText: {
-    color: colors.text,
-    fontWeight: '700',
-    fontSize: fs(12),
-    lineHeight: lh(12),
-    letterSpacing: 0.3,
-  },
-  badgeDirect: { backgroundColor: '#065f46' },
-  badgeReimb: { backgroundColor: '#7f1d1d' },
 
   // Action row / buttons
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 14 },

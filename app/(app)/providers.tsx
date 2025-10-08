@@ -1,24 +1,16 @@
-// app/(app)/providers.tsx
 import * as React from 'react';
 import { View, Text, FlatList, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useQuery } from '@tanstack/react-query';
 
 import Background from '../../components/Background';
-import { shared } from '../../styles/shared';
+import { shared, colors, fs, lh } from '../../styles/shared';
 import Select, { type Option as SelectOption } from '../../components/Select';
 import ProviderCard from '../../components/ProviderCard';
 
 import { auth } from '../../lib/authApi';
 import { getAllProviders, type Provider } from '../../lib/firestore';
 import { useFavoriteIds, useToggleFavorite } from '../../lib/favorites';
-
-type LegacyBilling = { billingType?: string | null };
-
-function getBilling(p: Provider): string | null {
-  const withLegacy = p as unknown as Provider & LegacyBilling;
-  return withLegacy.billing ?? withLegacy.billingType ?? null;
-}
 
 export default function Providers() {
   const {
@@ -36,7 +28,6 @@ export default function Providers() {
 
   const [country, setCountry] = React.useState<string | null>(null);
   const [city, setCity] = React.useState<string | null>(null);
-  const [billing, setBilling] = React.useState<string | null>(null);
 
   const countryOptions: SelectOption[] = React.useMemo(() => {
     const s = new Set<string>();
@@ -57,18 +48,10 @@ export default function Providers() {
       .map((v) => ({ label: v, value: v }));
   }, [providers, country]);
 
-  const billingOptions: SelectOption[] = React.useMemo(
-    () => [
-      { label: 'Direct', value: 'Direct' },
-      { label: 'Reimbursement', value: 'Reimbursement' },
-    ],
-    [],
-  );
-
+  // simple filtered array
   const filtered: Provider[] = providers.filter((p) => {
     if (country && p.country !== country) return false;
     if (city && p.city !== city) return false;
-    if (billing && getBilling(p) !== billing) return false;
     return true;
   });
 
@@ -84,9 +67,12 @@ export default function Providers() {
     <Background>
       <MaterialIcons name="check" size={0.001} color="transparent" />
       <View style={shared.safePad} />
-      <Text style={shared.titleCenter}>Providers</Text>
 
-      {/* Filters — full-width fields, unified card margins */}
+      <Text style={[shared.titleCenter, { color: colors.gold }]}>
+        Providers
+      </Text>
+
+      {/* Filters */}
       <View style={[shared.card, { gap: 10 }]}>
         <View style={{ width: '100%' }}>
           <Select
@@ -114,15 +100,29 @@ export default function Providers() {
           />
         </View>
 
-        <View style={{ width: '100%' }}>
-          <Select
-            label="Billing"
-            icon="payments"
-            placeholder="All billing"
-            value={billing}
-            options={billingOptions}
-            onChange={setBilling}
-          />
+        {/* Replaced Billing dropdown */}
+        <View
+          style={{
+            backgroundColor: colors.card,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: 12,
+            paddingVertical: 12,
+            paddingHorizontal: 12,
+          }}
+        >
+          <Text
+            style={{
+              ...shared.text,
+              color: colors.text,
+              textAlign: 'center',
+              fontSize: fs(16),
+              lineHeight: lh(18),
+              fontWeight: '600',
+            }}
+          >
+            All providers are VAFMP direct-billing providers.
+          </Text>
         </View>
       </View>
 

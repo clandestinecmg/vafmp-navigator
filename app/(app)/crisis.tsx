@@ -1,5 +1,4 @@
-// app/(app)/crisis.tsx
-import React from 'react';
+import * as React from 'react';
 import {
   ScrollView,
   View,
@@ -16,8 +15,6 @@ import ImageZoom from 'react-native-image-pan-zoom';
 import crisisNumbers from '../../assets/seeds/crisis_numbers.json';
 import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
 import Background from '../../components/Background';
-
-// Local AOR map image
 import aorMap from '../../assets/crisis/dod-aor-map.jpg';
 
 function openURL(url: string) {
@@ -35,7 +32,6 @@ function openSMS(number: string, body?: string) {
   ).catch(() => Alert.alert('Could not open messages'));
 }
 
-// Card-specific styles (scaled)
 const CARD = {
   base: {
     padding: 16,
@@ -46,19 +42,21 @@ const CARD = {
     borderColor: colors.border,
     marginHorizontal: GUTTER,
   },
-  title: {
+  title: (gold = false) => ({
+    ...shared.text,
     fontSize: fs(18),
-    lineHeight: lh(18),
-    fontWeight: '700' as const,
+    lineHeight: lh(20),
+    fontWeight: '800' as const,
     marginBottom: 8,
-    color: colors.text,
-  },
-  text: { fontSize: fs(16), lineHeight: lh(16), color: colors.text },
+    color: gold ? colors.gold : colors.text,
+  }),
+  text: { ...shared.text, fontSize: fs(16), lineHeight: lh(18) },
   link: {
+    ...shared.text,
     fontSize: fs(16),
-    lineHeight: lh(16),
+    lineHeight: lh(18),
+    color: colors.blue,
     textDecorationLine: 'underline' as const,
-    color: colors.blue, // ← back to blue
     marginTop: 6,
   },
   btn: {
@@ -72,10 +70,9 @@ const CARD = {
     borderColor: colors.border,
   },
   btnLabel: {
-    fontSize: fs(16),
-    lineHeight: lh(16),
-    fontWeight: '600' as const,
+    ...shared.text,
     color: '#fff',
+    fontWeight: '700' as const,
   },
   row: {
     flexDirection: 'row' as const,
@@ -101,17 +98,16 @@ export default function Crisis(): React.ReactElement {
           Veterans Crisis Line
         </Text>
 
-        {/* Immediate danger banner (full-bleed for emphasis) */}
+        {/* Immediate danger banner */}
         <View
           style={[
             shared.fullBleed,
             CARD.base,
             {
               backgroundColor: colors.red,
-              marginHorizontal: -GUTTER, // cancel container padding to bleed
-              borderRadius: 0, // squared edges for banner feel
+              marginHorizontal: -GUTTER,
+              borderRadius: 0,
               borderWidth: 0,
-              borderColor: 'transparent',
             },
           ]}
         >
@@ -122,14 +118,14 @@ export default function Crisis(): React.ReactElement {
 
         {/* Veterans Crisis Line */}
         <View style={CARD.base}>
-          <Text style={CARD.title}>U.S. Veterans Crisis Line</Text>
+          <Text style={CARD.title(true)}>U.S. Veterans Crisis Line</Text>
           <Text style={CARD.text}>
             24/7 confidential support for Veterans, service members, Guard &
             Reserve, and their families.
           </Text>
           <Text style={[CARD.text, { marginTop: 4 }]}>
-            Services: talk/text with trained responders, safety planning, and
-            referrals to VA & local care.
+            Services include talk/text with trained responders, safety planning,
+            and referrals to VA & local care.
           </Text>
 
           <Pressable
@@ -139,7 +135,7 @@ export default function Crisis(): React.ReactElement {
           >
             <View style={CARD.row}>
               <MaterialIcons
-                name="open-in-new"
+                name="language"
                 size={fs(18)}
                 color={colors.blue}
               />
@@ -148,8 +144,6 @@ export default function Crisis(): React.ReactElement {
           </Pressable>
 
           <Pressable
-            accessibilityRole="button"
-            hitSlop={8}
             style={CARD.btn}
             onPress={() =>
               openURL('https://www.veteranscrisisline.net/get-help-now/chat/')
@@ -158,41 +152,31 @@ export default function Crisis(): React.ReactElement {
             <Text style={CARD.btnLabel}>Chat Online</Text>
           </Pressable>
 
-          <Pressable
-            accessibilityRole="button"
-            hitSlop={8}
-            style={CARD.btn}
-            onPress={() => openTel('988')}
-          >
+          <Pressable style={CARD.btn} onPress={() => openTel('988')}>
             <Text style={CARD.btnLabel}>Call 988 (Press 1 for Veterans)</Text>
           </Pressable>
 
-          <Pressable
-            accessibilityRole="button"
-            hitSlop={8}
-            style={CARD.btn}
-            onPress={() => openSMS('838255')}
-          >
+          <Pressable style={CARD.btn} onPress={() => openSMS('838255')}>
             <Text style={CARD.btnLabel}>Text 838255</Text>
           </Pressable>
         </View>
 
-        {/* Future: Local crisis line by location */}
+        {/* Local crisis line */}
         <View style={CARD.base}>
-          <Text style={CARD.title}>Local crisis line (by your location)</Text>
+          <Text style={CARD.title(true)}>Local Crisis Line</Text>
           <Text style={CARD.text}>
             We’ll automatically detect your country and show the nearest mental
             health hotline for your region (e.g., Thailand’s local line).
           </Text>
           <Text style={[CARD.text, { marginTop: 4 }]}>
-            Coming soon — this will ask permission to access your location and
-            match it against a vetted hotline directory.
+            Coming soon — this will request permission to access your location
+            and match it against a vetted hotline directory.
           </Text>
         </View>
 
-        {/* Overseas contacts (official U.S. entry points) */}
+        {/* Overseas contacts */}
         <View style={CARD.base}>
-          <Text style={CARD.title}>Calling from Overseas?</Text>
+          <Text style={CARD.title(true)}>Calling from Overseas?</Text>
           <Text style={CARD.text}>
             Dial the U.S. country code (+1). If one number doesn’t connect, try
             another region. DSN 988 works from all base phones.
@@ -214,13 +198,13 @@ export default function Crisis(): React.ReactElement {
                   disabled={entry.type !== 'tel'}
                 >
                   <View style={CARD.row}>
-                    {entry.type === 'tel' ? (
+                    {entry.type === 'tel' && (
                       <MaterialIcons
-                        name="phone"
+                        name="call"
                         size={fs(18)}
-                        color={colors.green}
+                        color={colors.blue}
                       />
-                    ) : null}
+                    )}
                     <Text style={CARD.link}>{entry.label}</Text>
                   </View>
                 </Pressable>
@@ -229,9 +213,9 @@ export default function Crisis(): React.ReactElement {
           ))}
         </View>
 
-        {/* AOR Map (zoom & pan) */}
+        {/* DoD COM AOR Map */}
         <View style={CARD.base}>
-          <Text style={CARD.title}>DoD Areas of Responsibility (Map)</Text>
+          <Text style={CARD.title(true)}>DoD COM AOR</Text>
 
           <View
             style={{
@@ -253,11 +237,10 @@ export default function Crisis(): React.ReactElement {
               enableCenterFocus={false}
               pinchToZoom
               panToMove
-              doubleClickInterval={250}
             >
               <Image
                 source={aorMap}
-                accessibilityLabel="Map showing Department of Defense geographic combatant commands and their areas of responsibility"
+                accessibilityLabel="Map showing Department of Defense Combatant Commands"
                 style={{ width: cropWidth, height: cropHeight }}
                 resizeMode="contain"
               />
@@ -265,7 +248,7 @@ export default function Crisis(): React.ReactElement {
           </View>
 
           <Text style={[CARD.text, { marginTop: 8 }]}>
-            Pinch to zoom and drag to pan. Double-tap to zoom.
+            Pinch to zoom and drag to pan.
           </Text>
         </View>
       </ScrollView>

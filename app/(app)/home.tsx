@@ -1,4 +1,3 @@
-// app/(app)/home.tsx
 import * as React from 'react';
 import { ScrollView, View, Text } from 'react-native';
 import Background from '../../components/Background';
@@ -12,7 +11,9 @@ export default function Home() {
         contentContainerStyle={{ padding: GUTTER, paddingBottom: 40 }}
       >
         <View style={shared.safePad} />
-        <Text style={shared.titleCenter}>Welcome to FMP Navigator</Text>
+        <Text style={[shared.titleCenter, { color: colors.gold }]}>
+          Welcome to FMP Navigator
+        </Text>
 
         {/* Intro */}
         <View style={shared.card}>
@@ -36,7 +37,7 @@ export default function Home() {
           </Text>
         </View>
 
-        {/* Privacy (same dark card as others) */}
+        {/* Privacy */}
         <View style={shared.card}>
           <Text
             style={[
