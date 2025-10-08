@@ -9,10 +9,17 @@ import {
   StyleSheet,
   type TextInputProps,
 } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
 import { useProfile } from '../../hooks/userProfile';
 import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
 import type { Profile } from '../../types/profile';
 import Background from '../../components/Background';
+import { useBigToast } from '../../components/BigToast';
+
+// 🔐 auth helpers
+import { useAuth } from '../../hooks/useAuth';
+import { auth, signOut, signInAnonymously } from '../../lib/authApi';
 
 type Field = {
   key: keyof Profile;
@@ -86,8 +93,56 @@ const FIELDS: Field[] = [
 
 export default function ProfileScreen() {
   const { profile, setProfile, update, hydrated, saving } = useProfile();
+  const { user } = useAuth();
+  const router = useRouter();
+  const { show, Toast } = useBigToast();
+
   const setField = (key: keyof Profile, value: string) =>
     setProfile((p: Profile) => ({ ...p, [key]: value }));
+
+  // Clear local profile (PII) and sign out
+  const clearLocalProfileAndSignOut = async () => {
+    // wipe local store first
+    const empty = {} as Profile;
+    setProfile(() => empty);
+    await update(empty);
+    // then sign out
+    await signOut(auth);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await clearLocalProfileAndSignOut();
+      show(
+        'Your PII has been successfully cleared from your device.\nRefill Profile to auto-populate forms.',
+        { duration: 2400 },
+      );
+    } catch {
+      show('Unable to sign out. Please try again.', { duration: 2200 });
+    }
+  };
+
+  const handleAnonLogin = async () => {
+    try {
+      await signInAnonymously(auth);
+      show('Signed in. Your PII will be saved locally on your device.');
+    } catch {
+      show('Unable to sign in. Please try again.', { duration: 2200 });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!hydrated || saving) return;
+    try {
+      await update(profile);
+      show('Your PII has been saved locally on your device.');
+      setTimeout(() => router.replace('/(app)/home'), 700);
+    } catch {
+      show('Could not save your profile. Please try again.', {
+        duration: 2200,
+      });
+    }
+  };
 
   return (
     <Background>
@@ -101,6 +156,44 @@ export default function ProfileScreen() {
           Profile
         </Text>
 
+        {/* Status badge */}
+        <View style={styles.statusRow}>
+          <View
+            style={[
+              styles.dot,
+              { backgroundColor: user ? '#16a34a' : '#b91c1c' },
+            ]}
+          />
+          <Text style={styles.statusText}>
+            {user ? 'Signed in' : 'Not signed in'}
+          </Text>
+        </View>
+
+        {/* Clear, senior-friendly auth buttons */}
+        <View style={styles.authContainer}>
+          {user ? (
+            <Pressable
+              onPress={handleLogout}
+              accessibilityRole="button"
+              accessibilityLabel="Sign Out"
+              style={[styles.authBtn, { backgroundColor: colors.red }]}
+            >
+              <MaterialIcons name="logout" size={fs(18)} color="#fff" />
+              <Text style={styles.authLabel}>Sign Out</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={handleAnonLogin}
+              accessibilityRole="button"
+              accessibilityLabel="Sign In"
+              style={[styles.authBtn, { backgroundColor: colors.green }]}
+            >
+              <MaterialIcons name="login" size={fs(18)} color="#fff" />
+              <Text style={styles.authLabel}>Sign In</Text>
+            </Pressable>
+          )}
+        </View>
+
         <View style={[shared.card, styles.notice]}>
           <Text style={styles.noticeTitle}>Privacy note</Text>
           <Text style={styles.noticeText}>
@@ -109,54 +202,83 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        {FIELDS.map(
-          ({
-            key,
-            label,
-            keyboardType,
-            autoCapitalize,
-            secureTextEntry,
-            autoComplete,
-            textContentType,
-            placeholder,
-            autoCorrect,
-          }) => (
-            <View key={key} style={shared.card}>
-              <Text style={styles.label}>{label}</Text>
-              <TextInput
-                value={String(profile[key] ?? '')}
-                onChangeText={(t) => setField(key, t)}
-                keyboardType={keyboardType}
-                autoCapitalize={autoCapitalize}
-                secureTextEntry={secureTextEntry}
-                placeholder={placeholder}
-                placeholderTextColor={colors.muted}
-                autoComplete={autoComplete}
-                textContentType={textContentType}
-                autoCorrect={autoCorrect}
-                returnKeyType="next"
-                style={styles.input}
-              />
-            </View>
-          ),
-        )}
+        {FIELDS.map((f) => (
+          <View key={f.key} style={shared.card}>
+            <Text style={styles.label}>{f.label}</Text>
+            <TextInput
+              value={String(profile[f.key] ?? '')}
+              onChangeText={(t) => setField(f.key, t)}
+              keyboardType={f.keyboardType}
+              autoCapitalize={f.autoCapitalize}
+              secureTextEntry={f.secureTextEntry}
+              placeholder={f.placeholder}
+              placeholderTextColor={colors.muted}
+              autoComplete={f.autoComplete}
+              textContentType={f.textContentType}
+              autoCorrect={f.autoCorrect}
+              returnKeyType="next"
+              style={styles.input}
+            />
+          </View>
+        ))}
 
         <Pressable
+          onPress={handleSave}
           accessibilityRole="button"
-          accessibilityLabel="Save profile locally"
-          disabled={!hydrated || saving}
-          onPress={() => update(profile)}
-          style={[styles.saveBtn, { opacity: hydrated && !saving ? 1 : 0.6 }]}
+          accessibilityLabel="Save your profile"
+          style={[styles.saveBtn, saving && { opacity: 0.7 }]}
+          disabled={saving}
           hitSlop={8}
         >
-          <Text style={styles.saveLabel}>{saving ? 'Saving…' : 'Save'}</Text>
+          <MaterialIcons name="save" size={fs(18)} color="#fff" />
+          <Text style={styles.saveLabel}>
+            {saving ? 'Saving…' : 'Save Profile'}
+          </Text>
         </Pressable>
       </ScrollView>
+      <Toast />
     </Background>
   );
 }
 
 const styles = StyleSheet.create({
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'center',
+    marginTop: -4,
+  },
+  dot: { width: 10, height: 10, borderRadius: 999 },
+  statusText: {
+    color: colors.text,
+    fontSize: fs(14),
+    lineHeight: lh(14),
+    fontWeight: '800',
+  },
+  authContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 6,
+    gap: 10,
+  },
+  authBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 160,
+    justifyContent: 'center',
+  },
+  authLabel: {
+    color: '#fff',
+    fontWeight: '900',
+    fontSize: fs(16),
+    lineHeight: lh(16),
+    letterSpacing: 0.3,
+  },
   label: {
     color: colors.muted,
     fontSize: fs(14),
@@ -176,20 +298,22 @@ const styles = StyleSheet.create({
     lineHeight: lh(16),
   },
   saveBtn: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: colors.blue,
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.border,
-    marginHorizontal: GUTTER, // unify width with cards
+    marginHorizontal: GUTTER,
+    gap: 8,
   },
   saveLabel: {
     color: '#fff',
     fontWeight: '800',
     fontSize: fs(16),
     lineHeight: lh(16),
-    letterSpacing: 0.2,
   },
   notice: { backgroundColor: '#0e1a31', borderColor: '#1d2a45' },
   noticeTitle: {
@@ -198,12 +322,6 @@ const styles = StyleSheet.create({
     fontSize: fs(16),
     lineHeight: lh(16),
     marginBottom: 6,
-    paddingHorizontal: 0,
   },
-  noticeText: {
-    color: colors.text,
-    fontSize: fs(14),
-    lineHeight: lh(18),
-    paddingHorizontal: 0,
-  },
+  noticeText: { color: colors.text, fontSize: fs(14), lineHeight: lh(18) },
 });
