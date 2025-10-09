@@ -11,8 +11,11 @@ import { Modal, View, Text, StyleSheet, AccessibilityInfo } from 'react-native';
 import { colors, fs, lh } from '../styles/shared';
 
 type ToastCtx = {
+  /** Show a large, centered toast. Optional durationMs overrides default (3000ms). */
   show: (message: string, durationMs?: number) => void;
 };
+
+const DEFAULT_DURATION = 3000;
 
 const ToastContext = createContext<ToastCtx | undefined>(undefined);
 
@@ -27,7 +30,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState('');
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((msg: string, durationMs = 2000) => {
+  const show = useCallback((msg: string, durationMs = DEFAULT_DURATION) => {
     if (timeout.current) {
       clearTimeout(timeout.current);
       timeout.current = null;

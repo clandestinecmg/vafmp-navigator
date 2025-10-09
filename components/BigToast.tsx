@@ -5,7 +5,7 @@ import { colors, fs, lh } from '../styles/shared';
 
 type ToastOptions = { duration?: number };
 
-export function useBigToast(defaultDuration = 1800) {
+export function useBigToast(defaultDuration = 3000) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [duration, setDuration] = useState(defaultDuration);

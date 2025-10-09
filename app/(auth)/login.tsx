@@ -12,12 +12,12 @@ import {
   signOut,
   type User,
 } from '../../lib/authApi';
-import { useBigToast } from '../../components/BigToast';
+import { useToast } from '../../components/ToastProvider';
 
 export default function Login() {
   const [user, setUser] = React.useState<User | null>(auth.currentUser);
   const router = useRouter();
-  const { show, Toast } = useBigToast();
+  const { show } = useToast();
 
   React.useEffect(() => {
     const unsub = onAuthStateChanged(auth, setUser);
@@ -27,14 +27,15 @@ export default function Login() {
   const onAnon = async () => {
     try {
       await signInAnonymously(auth);
-      show('Signed in. Your PII will be saved locally on your device.');
+      show('Signed in. Your PII will be saved locally on your device.'); // ~3s default
       router.replace('/(app)/profile');
     } catch {
-      show('Unable to sign in. Please try again.', { duration: 2200 });
+      show('Unable to sign in. Please try again.', 4200);
     }
   };
 
   const onContinue = () => {
+    show('You are signed in. Continue to Profile to review your info.', 3600);
     router.replace('/(app)/profile');
   };
 
@@ -44,9 +45,9 @@ export default function Login() {
       show(
         'Your PII has been successfully cleared from your device.\nRefill Profile to auto-populate forms.',
       );
-      // Stay on login; user can sign in again if they want.
+      // Stay on login; they can sign in again if they want
     } catch {
-      show('Unable to sign out. Please try again.', { duration: 2200 });
+      show('Unable to sign out. Please try again.', 4200);
     }
   };
 
@@ -68,9 +69,10 @@ export default function Login() {
           <>
             <Pressable
               onPress={onContinue}
+              android_ripple={{ color: '#00000022', borderless: false }}
               style={({ pressed }) => [
                 styles.ctaPrimary,
-                pressed && { opacity: 0.95 },
+                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
               ]}
               accessibilityRole="button"
               accessibilityLabel="Continue to profile"
@@ -83,9 +85,10 @@ export default function Login() {
 
             <Pressable
               onPress={onSignOut}
+              android_ripple={{ color: '#ffffff22', borderless: false }}
               style={({ pressed }) => [
                 styles.ctaSecondary,
-                pressed && { opacity: 0.95 },
+                pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
               ]}
               accessibilityRole="button"
               accessibilityLabel="Sign out"
@@ -97,9 +100,10 @@ export default function Login() {
         ) : (
           <Pressable
             onPress={onAnon}
+            android_ripple={{ color: '#00000022', borderless: false }}
             style={({ pressed }) => [
               styles.ctaPrimary,
-              pressed && { opacity: 0.95 },
+              pressed && { opacity: 0.95, transform: [{ scale: 0.98 }] },
             ]}
             accessibilityRole="button"
             accessibilityLabel="Sign in"
@@ -116,7 +120,6 @@ export default function Login() {
           Your info lives on your device. You can clear it anytime from Profile.
         </Text>
       </View>
-      <Toast />
     </Background>
   );
 }

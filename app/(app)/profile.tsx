@@ -1,4 +1,3 @@
-// app/(app)/profile.tsx
 import React from 'react';
 import {
   ScrollView,
@@ -15,11 +14,15 @@ import { useProfile } from '../../hooks/userProfile';
 import { shared, colors, fs, lh, GUTTER } from '../../styles/shared';
 import type { Profile } from '../../types/profile';
 import Background from '../../components/Background';
-import { useBigToast } from '../../components/BigToast';
+import { useToast } from '../../components/ToastProvider';
 
 // 🔐 auth helpers
 import { useAuth } from '../../hooks/useAuth';
 import { auth, signOut, signInAnonymously } from '../../lib/authApi';
+import { resetProfile } from '../../storage/profileStore';
+import { secureWipeAll } from '../../storage/secure';
+import { emptyProfile } from '../../types/profile';
+import { queryClient } from '../../lib/queryClient';
 
 type Field = {
   key: keyof Profile;
@@ -95,52 +98,58 @@ export default function ProfileScreen() {
   const { profile, setProfile, update, hydrated, saving } = useProfile();
   const { user } = useAuth();
   const router = useRouter();
-  const { show, Toast } = useBigToast();
+  const { show } = useToast();
 
   const setField = (key: keyof Profile, value: string) =>
     setProfile((p: Profile) => ({ ...p, [key]: value }));
 
+  /** 🔒 Sign out and wipe everything */
   const handleLogout = async () => {
     try {
+      setProfile(() => ({ ...emptyProfile }));
+      await resetProfile();
+      await secureWipeAll(['profile']);
+      queryClient.clear();
       await signOut(auth);
+
       show(
         'Your PII has been successfully cleared from your device.\nRefill Profile to auto-populate forms.',
+        3000,
       );
-      // After logout, go back to Sign In
-      setTimeout(() => router.replace('/(auth)/login'), 700);
+      setTimeout(() => router.replace('/(auth)/login'), 900);
     } catch {
-      show('Unable to sign out. Please try again.', { duration: 2200 });
+      show('Unable to sign out. Please try again.', 4200);
     }
   };
 
   const handleAnonLogin = async () => {
     try {
       await signInAnonymously(auth);
-      show('Signed in. Your PII will be saved locally on your device.');
+      show('Signed in. Your PII will be saved locally on your device.', 3000);
     } catch {
-      show('Unable to sign in. Please try again.', { duration: 2200 });
+      show('Unable to sign in. Please try again.', 4200);
     }
   };
 
   const handleSave = async () => {
     if (!hydrated || saving) return;
     try {
-      // 🔒 sanitize to avoid "trim of undefined" in any downstream logic
-      const cleaned = Object.fromEntries(
-        Object.entries(profile).map(([k, v]) => [
-          k,
-          typeof v === 'string' ? v.trim() : '',
-        ]),
-      ) as Profile;
-
-      await update(cleaned);
-      show('Your PII has been saved locally on your device.');
-      // Navigate to Home after a short beat so toast is visible
-      setTimeout(() => router.replace('/(app)/home'), 700);
+      show(
+        'Your PII has been saved to your device. Sign-out to clear your profile.',
+        3000,
+      );
+      await update({
+        ...profile,
+        fullName: String(profile.fullName ?? '').trim(),
+        ssn: String(profile.ssn ?? '').trim(),
+        dob: String(profile.dob ?? '').trim(),
+        address: String(profile.address ?? '').trim(),
+        phone: String(profile.phone ?? '').trim(),
+        email: String(profile.email ?? '').trim(),
+      } as Profile);
+      setTimeout(() => router.replace('/(app)/home'), 900);
     } catch {
-      show('Could not save your profile. Please try again.', {
-        duration: 2200,
-      });
+      show('Could not save your profile. Please try again.', 4200);
     }
   };
 
@@ -174,9 +183,14 @@ export default function ProfileScreen() {
           {user ? (
             <Pressable
               onPress={handleLogout}
+              android_ripple={{ color: '#ffffff22', borderless: false }}
               accessibilityRole="button"
               accessibilityLabel="Sign Out"
-              style={[styles.authBtn, { backgroundColor: colors.red }]}
+              style={({ pressed }) => [
+                styles.authBtn,
+                { backgroundColor: colors.red },
+                pressed && { opacity: 0.94, transform: [{ scale: 0.985 }] },
+              ]}
             >
               <MaterialIcons name="logout" size={fs(18)} color="#fff" />
               <Text style={styles.authLabel}>Sign Out</Text>
@@ -184,9 +198,14 @@ export default function ProfileScreen() {
           ) : (
             <Pressable
               onPress={handleAnonLogin}
+              android_ripple={{ color: '#ffffff22', borderless: false }}
               accessibilityRole="button"
               accessibilityLabel="Sign In"
-              style={[styles.authBtn, { backgroundColor: colors.green }]}
+              style={({ pressed }) => [
+                styles.authBtn,
+                { backgroundColor: colors.green },
+                pressed && { opacity: 0.94, transform: [{ scale: 0.985 }] },
+              ]}
             >
               <MaterialIcons name="login" size={fs(18)} color="#fff" />
               <Text style={styles.authLabel}>Sign In</Text>
@@ -224,9 +243,14 @@ export default function ProfileScreen() {
 
         <Pressable
           onPress={handleSave}
+          android_ripple={{ color: '#ffffff22', borderless: false }}
           accessibilityRole="button"
           accessibilityLabel="Save your profile"
-          style={[styles.saveBtn, saving && { opacity: 0.7 }]}
+          style={({ pressed }) => [
+            styles.saveBtn,
+            pressed && { opacity: 0.92, transform: [{ scale: 0.985 }] },
+            saving && { opacity: 0.7 },
+          ]}
           disabled={saving}
           hitSlop={8}
         >
@@ -236,7 +260,6 @@ export default function ProfileScreen() {
           </Text>
         </Pressable>
       </ScrollView>
-      <Toast />
     </Background>
   );
 }
