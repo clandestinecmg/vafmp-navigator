@@ -9,6 +9,7 @@ import {
   auth,
   onAuthStateChanged,
   signInAnonymously,
+  signOut,
   type User,
 } from '../../lib/authApi';
 import { useBigToast } from '../../components/BigToast';
@@ -23,11 +24,6 @@ export default function Login() {
     return () => unsub();
   }, []);
 
-  // If already signed in, go straight to Profile
-  React.useEffect(() => {
-    if (user) router.replace('/(app)/profile');
-  }, [user, router]);
-
   const onAnon = async () => {
     try {
       await signInAnonymously(auth);
@@ -35,6 +31,22 @@ export default function Login() {
       router.replace('/(app)/profile');
     } catch {
       show('Unable to sign in. Please try again.', { duration: 2200 });
+    }
+  };
+
+  const onContinue = () => {
+    router.replace('/(app)/profile');
+  };
+
+  const onSignOut = async () => {
+    try {
+      await signOut(auth);
+      show(
+        'Your PII has been successfully cleared from your device.\nRefill Profile to auto-populate forms.',
+      );
+      // Stay on login; user can sign in again if they want.
+    } catch {
+      show('Unable to sign out. Please try again.', { duration: 2200 });
     }
   };
 
@@ -50,17 +62,52 @@ export default function Login() {
           form filling.
         </Text>
 
-        <View style={{ height: 10 }} />
+        <View style={{ height: 16 }} />
 
-        <Pressable
-          onPress={onAnon}
-          style={({ pressed }) => [styles.cta, pressed && { opacity: 0.95 }]}
-          accessibilityRole="button"
-          accessibilityLabel="Sign in"
-        >
-          <MaterialIcons name="login" size={fs(18)} color="#111" />
-          <Text style={styles.ctaLabel}>Sign In</Text>
-        </Pressable>
+        {user ? (
+          <>
+            <Pressable
+              onPress={onContinue}
+              style={({ pressed }) => [
+                styles.ctaPrimary,
+                pressed && { opacity: 0.95 },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Continue to profile"
+            >
+              <MaterialIcons name="arrow-forward" size={fs(18)} color="#111" />
+              <Text style={styles.ctaPrimaryLabel}>Continue</Text>
+            </Pressable>
+
+            <View style={{ height: 12 }} />
+
+            <Pressable
+              onPress={onSignOut}
+              style={({ pressed }) => [
+                styles.ctaSecondary,
+                pressed && { opacity: 0.95 },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Sign out"
+            >
+              <MaterialIcons name="logout" size={fs(18)} color="#fff" />
+              <Text style={styles.ctaSecondaryLabel}>Sign Out</Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable
+            onPress={onAnon}
+            style={({ pressed }) => [
+              styles.ctaPrimary,
+              pressed && { opacity: 0.95 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Sign in"
+          >
+            <MaterialIcons name="login" size={fs(18)} color="#111" />
+            <Text style={styles.ctaPrimaryLabel}>Sign In</Text>
+          </Pressable>
+        )}
 
         <View style={{ height: 16 }} />
         <Text
@@ -81,7 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  cta: {
+  ctaPrimary: {
     alignSelf: 'center',
     flexDirection: 'row',
     gap: 10,
@@ -95,11 +142,32 @@ const styles = StyleSheet.create({
     minWidth: 220,
     justifyContent: 'center',
   },
-  ctaLabel: {
+  ctaPrimaryLabel: {
     color: '#111',
     fontWeight: '900',
     fontSize: fs(18),
     lineHeight: lh(18),
+    letterSpacing: 0.2,
+  },
+  ctaSecondary: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+    backgroundColor: colors.red,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minWidth: 220,
+    justifyContent: 'center',
+  },
+  ctaSecondaryLabel: {
+    color: '#fff',
+    fontWeight: '900',
+    fontSize: fs(16),
+    lineHeight: lh(16),
     letterSpacing: 0.2,
   },
 });

@@ -100,23 +100,14 @@ export default function ProfileScreen() {
   const setField = (key: keyof Profile, value: string) =>
     setProfile((p: Profile) => ({ ...p, [key]: value }));
 
-  // Clear local profile (PII) and sign out
-  const clearLocalProfileAndSignOut = async () => {
-    // wipe local store first
-    const empty = {} as Profile;
-    setProfile(() => empty);
-    await update(empty);
-    // then sign out
-    await signOut(auth);
-  };
-
   const handleLogout = async () => {
     try {
-      await clearLocalProfileAndSignOut();
+      await signOut(auth);
       show(
         'Your PII has been successfully cleared from your device.\nRefill Profile to auto-populate forms.',
-        { duration: 2400 },
       );
+      // After logout, go back to Sign In
+      setTimeout(() => router.replace('/(auth)/login'), 700);
     } catch {
       show('Unable to sign out. Please try again.', { duration: 2200 });
     }
@@ -134,8 +125,17 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     if (!hydrated || saving) return;
     try {
-      await update(profile);
+      // 🔒 sanitize to avoid "trim of undefined" in any downstream logic
+      const cleaned = Object.fromEntries(
+        Object.entries(profile).map(([k, v]) => [
+          k,
+          typeof v === 'string' ? v.trim() : '',
+        ]),
+      ) as Profile;
+
+      await update(cleaned);
       show('Your PII has been saved locally on your device.');
+      // Navigate to Home after a short beat so toast is visible
       setTimeout(() => router.replace('/(app)/home'), 700);
     } catch {
       show('Could not save your profile. Please try again.', {
